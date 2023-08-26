@@ -3,6 +3,12 @@
 /public/storage
 /storage/*.key
 /vendor
+/public/distress-audio
+/public/distress-photo
+/public/distress-photos
+/public/distress-videos
+/public/offenders-photo
+/public/users-images
 .env
 .env.backup
 .phpunit.result.cache
