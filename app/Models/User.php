@@ -33,6 +33,8 @@ class User extends Authenticatable
         'reg_location',
         'password',
         'status',
+        'language',
+        'activation_time'
     ];
 
     /**

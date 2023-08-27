@@ -14,7 +14,7 @@ class CreateNotificationsTable extends Migration
     public function up()
     {
         Schema::create('notifications', function (Blueprint $table) {
-    
+
 
 
            $table->increments('id');
@@ -22,6 +22,7 @@ class CreateNotificationsTable extends Migration
            $table->string('user_id');
            $table->string('title');
            $table->string('content');
+           $table->string('mobile_id')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
         });

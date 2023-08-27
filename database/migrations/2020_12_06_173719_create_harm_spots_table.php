@@ -19,6 +19,8 @@ class CreateHarmSpotsTable extends Migration
             $table->string('admin_id');
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
+            $table->string('location')->nullable();
+            $table->string('country')->nullable();
             $table->string('title')->nullable();
             $table->string('content')->nullable();
             $table->string('risk_level')->nullable();
