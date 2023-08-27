@@ -46,7 +46,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/users/dp/{id}', [UserController::class, 'viewPic']);
     Route::post('/users/search', [UserController::class, 'searchUser']);
     Route::post('/find/user', [UserController::class, 'searchUserByUsername']);
-
+    Route::post('/users/language', [UserController::class, 'saveLanguage']);
 
 
     //PostController
@@ -217,6 +217,7 @@ Route::get('/version', [UserController::class, 'checkVersion']);
 
 Route::post('/users/password/forget', [UserController::class, 'forgetPassword']);
 Route::post('/users/password/reset', [UserController::class, 'changePassword']);
+
 
 
 Route::post('/show', [DistressMessageController::class, 'testing']);

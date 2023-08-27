@@ -15,6 +15,7 @@ class AddDistressMessageIdToGuardianDistressMessagesTable extends Migration
     {
         Schema::table('guardian_distress_messages', function (Blueprint $table) {
             $table->integer('distress_message_id')->after('id')->unsigned()->index();
+            
         });
     }
 
