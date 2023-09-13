@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\GuardianController;
@@ -114,25 +115,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/message/priority', [DistressMessageController::class, 'changeDistressPriority']);
     Route::get('guardian/message/{id}', [DistressMessageController::class, 'guardianViewAllDistress']);
     Route::get('guardian/message/{id}/{priority}', [DistressMessageController::class, 'guardianViewDistressOnPriority']);
-
     Route::get('guardian/message/single/{id}/{msg_id}', [DistressMessageController::class, 'guardianViewSingleMessage']);
-
-
-
-
-
     Route::get('ward/message/{id}', [DistressMessageController::class, 'wardViewAllDistress']);
-
     Route::get('ward/message/{id}/{priority}', [DistressMessageController::class, 'wardViewDistressOnPriority']);
-
-
-
     Route::get('ward/message/single/{id}/{msg_id}', [DistressMessageController::class, 'wardViewSingleMessage']);
-
-
-
-
-
     Route::get('guardian/delete/distress/{id}', [DistressMessageController::class, 'deleteGuardianDistressMessage']);
     Route::get('ward/delete/distress/{id}', [DistressMessageController::class, 'deleteDistressMessage']);
 
@@ -166,11 +152,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/check/notifications/{id}', [NotificationsController::class, 'checkNotifications']);
 
 
-    Route::post('/sos', [EmergencyController::class, 'store']);
-    Route::get('/sos/{id}', [EmergencyController::class, 'getAssignedNumber']);
+    Route::post('/sos/number', [EmergencyController::class, 'addNumber']);
+    Route::get('/sos/number', [EmergencyController::class, 'getAssignedNumber']);
     Route::post('/sos/assign', [EmergencyController::class, 'assignNumber']);
-    Route::get('/sos/num/delete/{id}', [EmergencyController::class, 'deleteNumber']);
-    Route::get('/sos/num/{id}', [EmergencyController::class, 'getAllNumbers']);
+    Route::post('/sos/number/delete', [EmergencyController::class, 'deleteNumber']);
+    Route::get('/sos/numbers', [EmergencyController::class, 'getAllNumbers']);
 
 
 
@@ -183,13 +169,23 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/offenders/true/{id}', [OffenderController::class, 'fetchTrues']);
     Route::get('/offenders/false/{id}', [OffenderController::class, 'fetchFalse']);
     Route::get('/offenders/notsure/{id}', [OffenderController::class, 'fetchNotSure']);
-
-
     Route::post('/offenders/true', [OffenderController::class, 'voteTrue']);
     Route::post('/offenders/false', [OffenderController::class, 'voteFalse']);
     Route::post('/offenders/notsure', [OffenderController::class, 'voteNotSure']);
-
     Route::post('/offence', [OffenderController::class, 'makeOffencePost']);
+
+
+
+    Route::post('/community', [CommunityController::class, 'createCommunity']);
+    Route::get('/community', [CommunityController::class, 'getCommunities']);
+    Route::get('/user/community', [CommunityController::class, 'getCommunityByUser']);
+    Route::post('/community/follow', [CommunityController::class, 'joinCommunity']);
+    Route::get('/community/follows', [CommunityController::class, 'getFollowingCommunity']);
+    Route::post('/community/post', [CommunityController::class, 'makeCommunityPost']);
+    Route::get('/community/post/{community_id}', [CommunityController::class, 'getCommunityPost']);
+
+
+
 });
 
 
