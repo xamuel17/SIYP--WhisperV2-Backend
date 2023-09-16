@@ -8,7 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
-
+use Illuminate\Support\Str;
 class CommunityHasPostResource extends JsonResource
 {
     /**
@@ -64,11 +64,13 @@ class CommunityHasPostResource extends JsonResource
         // Format the date in a human-readable way
         $formattedDate = $date->diffForHumans();
 
+
         return [
 
             'id' =>$this->id,
             'user_photo'=>$user_photo,
-            'user_name'=> $user->username,
+            'user_name'=> Str::limit($user->username, 8,'...'),
+            "user_firstname" => Str::limit($user->firstname, 6,'...'),
             'user_id'=>$this->user_id,
             'title' => $this->name,
             'photo' =>$photoUrls,
