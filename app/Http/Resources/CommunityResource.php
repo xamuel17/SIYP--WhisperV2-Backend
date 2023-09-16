@@ -21,7 +21,7 @@ class CommunityResource extends JsonResource
             'user_id' => $this->user_id,
             'purpose' => $this->purpose,
             'category' => $this->category,
-            'photo'=> public_path("users-community-images/" . $this->photo) ,
+            'photo'=> env('APP_URL'). "/users-community-images/" . $this->photo,
             'privacy'=>$this->privacy,
             'content'=>$this->content,
             'status'=>$this->status,

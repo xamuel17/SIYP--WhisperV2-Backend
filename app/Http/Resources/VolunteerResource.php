@@ -17,7 +17,7 @@ class VolunteerResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
-            'photo' => public_path("users-community-images/" . $this->photo),
+            'photo' => env("APP_URL")."/users-community-images/" . $this->photo,
             'role'=> $this->role,
             'status'=> $this->status,
             'description'=> $this->description,

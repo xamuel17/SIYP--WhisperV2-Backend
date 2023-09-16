@@ -762,7 +762,7 @@ class UserController extends Controller
     {
 
         $pic = user::where('id', $userID)->get('profile_pic');
-        $image_path = public_path("/public/users-images/" . $pic[0]->pic);
+        $image_path = env("APP_URL")."/public/users-images/" . $pic[0]->pic;
         if ($pic != null) {
             if (File::exists(public_path('users-images/' . $pic[0]->pic))) {
                 File::delete(public_path('users-images/' . $pic[0]->pic));
@@ -777,9 +777,9 @@ class UserController extends Controller
 
         $pic = $DP[0];
         if ($DP != null) {
-            return response()->download(public_path("users-images/" . $pic), 'User Image');
+            return response()->download(env("APP_URL")."/users-images/" . $pic, 'User Image');
         } else {
-            return response()->download(public_path("users-images/avatar.JPG"), 'User Image');
+            return response()->download(env("APP_URL")."/users-images/avatar.JPG", 'User Image');
         }
     }
 
