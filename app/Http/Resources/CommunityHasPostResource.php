@@ -4,6 +4,8 @@ namespace App\Http\Resources;
 
 use App\Models\CommunityHasComments;
 use App\Models\CommunityPostReplyLike;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\Paginator;
 
@@ -51,9 +53,23 @@ class CommunityHasPostResource extends JsonResource
         ])->count();
 
         $comments = CommunityCommentResource::collection(CommunityHasComments::where('community_post_id', $this->id)->get());
+
+        $user = User::where('id', $this->user_id)->first();
+        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
+
+
+        // Replace $date with your actual date
+        $date = Carbon::parse($this->created_at);
+
+        // Format the date in a human-readable way
+        $formattedDate = $date->diffForHumans();
+
         return [
 
             'id' =>$this->id,
+            'user_photo'=>$user_photo,
+            'user_name'=> $user->username,
+            'user_id'=>$this->user_id,
             'title' => $this->name,
             'photo' =>$photoUrls,
             'videos'=>  $video,
@@ -63,7 +79,8 @@ class CommunityHasPostResource extends JsonResource
             "comment" => $comments,
             'content'=>$this->content,
             'status' => $this->status,
-            'is_flagged'=>$this->is_flagged
+            'is_flagged'=>$this->is_flagged,
+            'created_at'=>$formattedDate
 
         ];
     }

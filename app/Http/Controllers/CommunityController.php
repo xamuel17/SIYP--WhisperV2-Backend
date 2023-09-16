@@ -38,7 +38,7 @@ class CommunityController extends Controller
         }
 
         $secretKey = null;
-        if ($request->privacy == true) {
+        if ($request->privacy == 1) {
 
             $secretKey = rand(pow(10, 5 - 1), pow(10, 5) - 1);
         }
@@ -234,7 +234,7 @@ class CommunityController extends Controller
         // Prepare the JSON response
         $response = [
             'responseMessage' => 'success',
-            'responseCode' => 200, // Use an appropriate HTTP status code, e.g., 200 for success
+            'responseCode' => 00, // Use an appropriate HTTP status code, e.g., 200 for success
             'data' => CommunityHasPostResource::collection($posts),
         ];
         return response()->json($response, 200);
