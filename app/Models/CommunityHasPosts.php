@@ -19,6 +19,7 @@ class CommunityHasPosts extends Model
         'photos',
         'likes',
         'dislikes',
-        'is_flagged'
+        'is_flagged',
+        'created_at'
     ];
 }
