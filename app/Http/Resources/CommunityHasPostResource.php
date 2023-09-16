@@ -68,6 +68,7 @@ class CommunityHasPostResource extends JsonResource
         return [
 
             'id' =>$this->id,
+            'community_id'=>$this->community_id,
             'user_photo'=>$user_photo,
             'user_name'=> Str::limit($user->username, 8,'...'),
             "user_firstname" => Str::limit($user->firstname, 6,'...'),

@@ -252,9 +252,16 @@ class CommunityController extends Controller
             'selected_id' => $selectedId,
             'community_id' => $communityId
         ])->first();
-           if(isset($post->id)){
+           if(isset($post)){
             //delete
-            CommunityPostReplyLike::where(['id' => $post->id])->delete();
+            if($state == "likePost" && $post->action == 0){
+                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
+            }
+             if($state == "dislikePost" && $post->action == 1) {
+
+                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
+            }
+
            }else{
             //create
             CommunityPostReplyLike::create([
@@ -273,8 +280,14 @@ class CommunityController extends Controller
             'community_id' => $communityId
         ])->first();
            if(isset($post->id)){
-            //delete
-            CommunityPostReplyLike::where(['id' => $post->id])->delete();
+
+            if($state == "likeReply" && $post->action == 0){
+                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
+            }
+
+             if($state == "dislikeReply" && $post->action == 1) {
+                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
+            }
            }else{
             //create
             CommunityPostReplyLike::create([
