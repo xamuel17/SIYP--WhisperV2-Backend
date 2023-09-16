@@ -22,6 +22,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \Fruitcake\Cors\HandleCors::class,
     ];
 
     /**
@@ -44,6 +45,7 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+
         ],
     ];
 
@@ -68,5 +70,7 @@ class Kernel extends HttpKernel
         'web.role.app_developer' => \App\Http\Middleware\IsAppDeveloper::class,
         'web.role.super_admin' => \App\Http\Middleware\IsSuperAdmin::class,
         'web.role.admin' => \App\Http\Middleware\IsAdmin::class,
+        //'cors' => \Barryvdh\Cors\Middleware\HandleCors::class,
+
     ];
 }
