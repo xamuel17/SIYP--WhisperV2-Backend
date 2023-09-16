@@ -20,7 +20,7 @@ class UserResource extends JsonResource
 
       //  return parent::toArray($request);
 
-        $photo = $this->profile_pic ? public_path("users-images/" . $this->profile_pic) : public_path("users-images/" . "avatar.JPG");
+        $photo = $this->profile_pic ? env("APP_URL")."/users-images/" . $this->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
 
       return [
         'id' => $this->id,
