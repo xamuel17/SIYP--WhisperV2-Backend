@@ -19,7 +19,7 @@ class CommunityHasPostResource extends JsonResource
     {
 
             $photoStrings = json_decode($this->photos);
-            $baseUrl =  public_path("users-community-images/") ;
+            $baseUrl =  env("APP_URL")."/users-community-images/" ;
 
             $photoUrls = [];
             if (is_array($photoStrings)) {
@@ -32,7 +32,7 @@ class CommunityHasPostResource extends JsonResource
                 }
             }
     $video = "";
-    if(!empty($this->videos)){ $video = public_path("users-community-videos/". $this->videos);}
+    if(!empty($this->videos)){ $video = env('APP_URL')."/users-community-videos/". $this->videos;}
 
         $likes =  CommunityPostReplyLike::where([
             'type' => 'post',

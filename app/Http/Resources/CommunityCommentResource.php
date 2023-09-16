@@ -19,7 +19,7 @@ class CommunityCommentResource extends JsonResource
             $photo  = User::where('id', $this->user_id)->value('profile_pic');
             $_photo  = $photo != null ? $photo : "avatar.JPG";
             $photoStrings = json_decode($this->photos);
-            $baseUrl =  public_path("users-community-images/") ;
+            $baseUrl =  env("APP_URL")."/users-community-images/" ;
 
             $photoUrls = [];
             if (is_array($photoStrings)) {
@@ -49,7 +49,7 @@ class CommunityCommentResource extends JsonResource
 
             'id' =>$this->id,
             'user_id' => $this->user_id,
-            'user_img' =>public_path("users-images/".  $_photo),
+            'user_img' =>env("APP_URL")."/users-images/".  $_photo,
             'content'=>$this->content,
             'photos'=>$photoUrls,
             'likes'=> $likes ,
