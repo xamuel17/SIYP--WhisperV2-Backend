@@ -20,7 +20,7 @@ class UserResource extends JsonResource
 
       //  return parent::toArray($request);
 
-
+        $photo = $this->profile_pic ? public_path("users-images/" . $this->profile_pic) : public_path("users-images/" . "avatar.JPG");
 
       return [
         'id' => $this->id,
@@ -38,7 +38,7 @@ class UserResource extends JsonResource
         'language' => $this->language,
         'imei' => $this->imei,
         'activation_code' => $this->activation_code,
-        'profile_pic'=>$this->profile_pic,
+        'profile_pic'=> $photo,
         'followers_count'=>Guardians::where('guardian_id',$this->id )->get()->count(),
         'created_at' => $this->created_at,
         'updated_at' => $this->updated_at,
