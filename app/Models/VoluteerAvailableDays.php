@@ -12,7 +12,7 @@ class VoluteerAvailableDays extends Model
     protected $fillable = [
         'id',
         'volunteer_id',
-        'days_of_week',
+        'day_of_week',
         'date',
         'start_time',
         'end_time',

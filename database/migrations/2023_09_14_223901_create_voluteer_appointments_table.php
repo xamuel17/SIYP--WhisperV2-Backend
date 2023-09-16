@@ -21,7 +21,7 @@ class CreateVoluteerAppointmentsTable extends Migration
             $table->date('appointment_date');
             $table->time('appointment_time');
             $table->longText('notes');
-            $table->enum('status', ['cancelled', 'closed','completed']);
+            $table->enum('status', ['cancelled', 'closed','completed','pending', 'accepted'])->default('pending');
             $table->timestamps();
             $table->foreign('volunteer_id')->references('id')->on('volunteers')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

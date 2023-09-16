@@ -16,6 +16,7 @@ use App\Http\Controllers\EmergencyController;
 use App\Http\Controllers\DistressMessageController;
 use App\Http\Controllers\RulesController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\VolunteerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -189,6 +190,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/community/home/{page}', [CommunityController::class, 'CommunityDashboard']);
 
 
+
+    Route::post('/volunteer', [VolunteerController::class, 'createVolunteer']);
+    Route::get('/volunteers', [VolunteerController::class, 'viewVolunteers']);
+    Route::post('/volunteer/photo', [VolunteerController::class, 'uploadPhoto']);
+    Route::post('/volunteer/action', [VolunteerController::class, 'activateDeactivateVolunteer']);
+    Route::post('/volunteer/appointment', [VolunteerController::class, 'volunteerSetAppointmentDates']);
+    Route::post('/volunteer/free-time', [VolunteerController::class, 'retrieveVolunteerAvailableTime']);
+    Route::get('/volunteer/delete/{id}', [VolunteerController::class, 'deleteAvailableTime']);
+    Route::post('/volunteer/booking', [VolunteerController::class, 'userMakeBooking']);
+    Route::get('/volunteer/booking', [VolunteerController::class, 'volunteerViewBooking']);
+    Route::get('/volunteer/booking-update/{status}/{id}', [VolunteerController::class, 'updateBookingStatus']);
 
 
 
