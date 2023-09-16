@@ -29,6 +29,13 @@ class PostController extends Controller
             ->orderBy('created_at', 'DESC')->get());
     }
 
+
+    public function createPost(Request $request)
+    {
+        return PostResource::collection(Post::orderBy('created_at', 'DESC')->where('status', '1')
+            ->orderBy('created_at', 'DESC')->get());
+    }
+
     public function userFetchAllPosts($id)
     {
         $conditions = array(
