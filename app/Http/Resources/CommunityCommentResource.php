@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\CommunityPostReplyLike;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommunityCommentResource extends JsonResource
@@ -45,16 +46,21 @@ class CommunityCommentResource extends JsonResource
             'action'=> false
         ])->count();
 
+        $user = User::where('id', $this->user_id)->first();
+        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
+
+
         return [
 
             'id' =>$this->id,
             'user_id' => $this->user_id,
-            'user_img' =>env("APP_URL")."/users-images/".  $_photo,
+            'user_photo'=>$user_photo,
+            'user_name'=> Str::limit($user->username, 8,'...'),
+            "user_firstname" => Str::limit($user->firstname, 6,'...'),
             'content'=>$this->content,
             'photos'=>$photoUrls,
             'likes'=> $likes ,
-            'dislikes'=>$dislikes
-
+            'dislikes'=>$dislikes,
 
         ];
     }
