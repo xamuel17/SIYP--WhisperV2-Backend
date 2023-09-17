@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\CommunityPostReplyLike;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -50,6 +51,13 @@ class CommunityCommentResource extends JsonResource
         $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
 
 
+                // Replace $date with your actual date
+                $date = Carbon::parse($this->created_at);
+
+                // Format the date in a human-readable way
+                $formattedDate = $date->diffForHumans();
+
+
         return [
 
             'id' =>$this->id,
@@ -61,6 +69,7 @@ class CommunityCommentResource extends JsonResource
             'photos'=>$photoUrls,
             'likes'=> $likes ,
             'dislikes'=>$dislikes,
+            'created_at'=>$formattedDate
 
         ];
     }
