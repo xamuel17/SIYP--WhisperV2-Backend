@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommunityHasPostCommentResource;
 use App\Http\Resources\CommunityHasPostResource;
 use App\Http\Resources\CommunityResource;
 use App\Models\Community;
@@ -216,7 +217,7 @@ class CommunityController extends Controller
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['data'] = CommunityHasPostResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->get());
+        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->get());
         return response()->json($response, 200);
     }
 
