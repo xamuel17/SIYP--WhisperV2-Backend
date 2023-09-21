@@ -183,6 +183,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/community/follow', [CommunityController::class, 'joinCommunity']);
     Route::get('/community/follows', [CommunityController::class, 'getFollowingCommunity']);
     Route::post('/community/post', [CommunityController::class, 'makeCommunityPost']);
+    Route::post('/community/post-second', [CommunityController::class, 'makeAnotherCommunityPost']);
     Route::get('/community/post/{community_id}', [CommunityController::class, 'getCommunityPost']);
     Route::post('/community/action', [CommunityController::class, 'likeDislikeCommunityPostOrReply']);
     Route::post('/community/post/reply', [CommunityController::class, 'replyCommunityPost']);
@@ -216,6 +217,7 @@ Route::post('/notifications', [NotificationsController::class, 'store']);
 
 Route::get('/countries', [CountriesController::class, 'getCountries']);
 
+Route::get('/trust-me', [UserController::class, 'getCsrfToken']);
 
 
 

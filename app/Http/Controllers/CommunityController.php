@@ -406,6 +406,53 @@ class CommunityController extends Controller
             return response()->json($response, 200);
         }
     }
+
+
+        /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\CountriesController  $countriesController
+     * @return \Illuminate\Http\Response
+     */
+    public function makeAnotherCommunityPost(Request $request)
+    {
+
+        $rules = array(
+            'community_id' => 'required|exists:communities,id',
+            'content' => 'required',
+            'type' => 'required'
+        );
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+
+            $response['responseMessage'] = 'Opps, selected community doesn\'t exist!';
+            $response['responseCode'] = -1001;
+            $response['data'] = $validator->errors();
+            return response()->json($response, 200);
+        }
+
+        if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $request->community_id])->count() == 0) {
+            $response['responseMessage'] = 'You are not a community member';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+
+       $post= CommunityHasPosts::create([
+            'content' => $request->content,
+            'user_id' => auth()->user()->id,
+            'community_id' => $request->community_id
+        ]);
+
+        if(isset($post)){
+            $response['responseMessage'] = 'The post creation was successful.';
+            $response['responseCode'] = 200;
+            return response()->json($response, 200);
+        }else{
+            $response['responseMessage'] = 'The post has been successfully created.';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+    }
     /**
      * Remove the specified resource from storage.
      *
