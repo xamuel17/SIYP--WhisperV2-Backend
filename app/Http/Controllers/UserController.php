@@ -8,6 +8,7 @@ use App\Models\Notifications;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -42,6 +43,15 @@ class UserController extends Controller
 
         return response()->json($response, 200);
     }
+
+
+    public function getCsrfToken()
+{
+    // Generate a CSRF token
+    $csrfToken = Crypt::encrypt(csrf_token());
+
+    return response()->json(['csrf_token' => $csrfToken]);
+}
 
     //##########################################SIGNUP ############################################
 
