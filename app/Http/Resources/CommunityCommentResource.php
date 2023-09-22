@@ -36,13 +36,13 @@ class CommunityCommentResource extends JsonResource
 
 
         $likes =  CommunityPostReplyLike::where([
-            'type' => 'comment',
+            'type' => 'reply',
             'selected_id' => $this->id,
             'action'=> true
         ])->count();
 
         $dislikes =  CommunityPostReplyLike::where([
-            'type' => 'comment',
+            'type' => 'reply',
             'selected_id' => $this->id,
             'action'=> false
         ])->count();
