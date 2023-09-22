@@ -20,7 +20,7 @@ class CommunityResource extends JsonResource
         $memberStatus = false;
         $memberBlock = "";
         try {
-            $member=  CommunityMember::where(['community_id' => $this->id,'user_id', auth()->user()->id ]);
+            $member=  CommunityMember::where(['community_id' => $this->id,'user_id'=> auth()->user()->id ]);
             if ($member->count() > 0){ $memberStatus = true; };
             if(isset($member->status)){ $memberBlock =$member->status; };
         } catch (\Throwable $th) {
