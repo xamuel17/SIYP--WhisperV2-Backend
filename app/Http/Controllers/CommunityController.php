@@ -105,6 +105,15 @@ class CommunityController extends Controller
         return response()->json($response, 200);
     }
 
+
+    public function getCommunitySinglePost($post_id){
+
+        $response['responseMessage'] = 'success';
+        $response['responseCode'] = 00;
+        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['id' =>  $post_id])->get());
+        return response()->json($response, 200);
+    }
+
     /**
      * Display the specified resource.
      *
