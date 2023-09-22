@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Community;
+use App\Models\CommunityMember;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommunityResource extends JsonResource
@@ -14,6 +16,17 @@ class CommunityResource extends JsonResource
      */
     public function toArray($request)
     {
+        //check if user is a community member
+        $memberStatus = false;
+        $memberBlock = "";
+        try {
+            $member=  CommunityMember::where(['community_id' => $this->id,'user_id', auth()->user()->id ]);
+            if ($member->count() > 0){ $memberStatus = true; };
+            if(isset($member->status)){ $memberBlock =$member->status; };
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
         return [
 
             'id' =>$this->id,
@@ -26,6 +39,8 @@ class CommunityResource extends JsonResource
             'content'=>$this->content,
             'status'=>$this->status,
             'secret_key'=>$this->secret_key,
+            'membership' => $memberStatus,
+            'membership_status' => $memberBlock,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
