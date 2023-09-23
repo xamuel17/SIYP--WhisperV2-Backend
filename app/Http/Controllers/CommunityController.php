@@ -173,8 +173,19 @@ class CommunityController extends Controller
             'community_id' => $request->community_id,
         ];
         if ($action == "remove") {
-            $communityRemove = CommunityMember::where('community_id', $request->community_id)->first();
+            //check if user is admin
+
+            $communityRemove = CommunityMember::where(['community_id'=> $request->community_id, 'user_id' => auth()->user()->id])->first();
+
+
             if (isset($communityRemove)) {
+
+                if($communityRemove->status == "admin"){
+                    $response['responseMessage'] = "You are unable to exit this {$communityName} as you hold the role of a community administrator. ";
+                    $response['responseCode'] = 00;
+                    $response['data'] = $validator->errors();
+                    return response()->json($response, 200);
+                }
                 $communityRemove->forceDelete();
                 $response['responseMessage'] = 'You\'ve unfollowed ' . $communityName . ' community';
                 $response['responseCode'] = 00;

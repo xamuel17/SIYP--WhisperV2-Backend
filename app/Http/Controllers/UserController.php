@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Mail\ActivationMail;
+use App\Models\CommunityMember;
 use App\Models\Notifications;
 use App\Models\User;
 use Carbon\Carbon;
@@ -44,14 +45,13 @@ class UserController extends Controller
         return response()->json($response, 200);
     }
 
-
     public function getCsrfToken()
-{
-    // Generate a CSRF token
-    $csrfToken = Crypt::encrypt(csrf_token());
+    {
+        // Generate a CSRF token
+        $csrfToken = Crypt::encrypt(csrf_token());
 
-    return response()->json(['csrf_token' => $csrfToken]);
-}
+        return response()->json(['csrf_token' => $csrfToken]);
+    }
 
     //##########################################SIGNUP ############################################
 
@@ -112,6 +112,24 @@ class UserController extends Controller
 
                 try {
                     $this->sendNotification($notId, $title, $content, "8");
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+
+                try {
+                    $user = User::where(['email'=> $request->email, 'username' => $request->username ])->first();
+                    $conditions_ = [
+                        'user_id' => $user->id,
+                        'community_id' => 1,
+                    ];
+                    if (CommunityMember::where($conditions_)->count()) {
+
+                    } else {
+                        CommunityMember::create([
+                            'user_id' => $user->id,
+                            'community_id' => 1,
+                        ]);
+                    }
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
@@ -772,7 +790,7 @@ class UserController extends Controller
     {
 
         $pic = user::where('id', $userID)->get('profile_pic');
-        $image_path = env("APP_URL")."/public/users-images/" . $pic[0]->pic;
+        $image_path = env("APP_URL") . "/public/users-images/" . $pic[0]->pic;
         if ($pic != null) {
             if (File::exists(public_path('users-images/' . $pic[0]->pic))) {
                 File::delete(public_path('users-images/' . $pic[0]->pic));
@@ -787,9 +805,9 @@ class UserController extends Controller
 
         $pic = $DP[0];
         if ($DP != null) {
-            return response()->download(env("APP_URL")."/users-images/" . $pic, 'User Image');
+            return response()->download(env("APP_URL") . "/users-images/" . $pic, 'User Image');
         } else {
-            return response()->download(env("APP_URL")."/users-images/avatar.JPG", 'User Image');
+            return response()->download(env("APP_URL") . "/users-images/avatar.JPG", 'User Image');
         }
     }
 
