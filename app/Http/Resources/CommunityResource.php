@@ -4,6 +4,9 @@ namespace App\Http\Resources;
 
 use App\Models\Community;
 use App\Models\CommunityMember;
+use App\Models\User;
+use App\WebClasses\Util;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CommunityResource extends JsonResource
@@ -29,6 +32,23 @@ class CommunityResource extends JsonResource
             //throw $th;
         }
 
+
+// Fetch 4 community members' photos
+$membersPhotos = [];
+$membersCount = null;
+try {
+    $membersUserIds = CommunityMember::where(['community_id' => $this->id])->limit(4)->pluck('user_id');
+    $_membersPhotos = User::whereIn('id', $membersUserIds)->pluck('profile_pic');
+    $membersCount = Util::numberFormatShort(CommunityMember::where(['community_id' => $this->id])->count());
+    foreach ($_membersPhotos as $photo) {
+        $membersPhotos[] = $photo ? env("APP_URL") . "/users-images/" . $photo : env("APP_URL") . "/users-images/" . "avatar.JPG";
+    }
+} catch (\Throwable $th) {
+    // Handle exceptions here
+}
+
+
+
         return [
 
             'id' =>$this->id,
@@ -43,8 +63,10 @@ class CommunityResource extends JsonResource
             'secret_key'=>$this->secret_key,
             'membership' => $memberStatus,
             'membership_status' => $memberBlock,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'member_count' => $membersCount,
+            'member_photos' => $membersPhotos,
+            'created_at' => Carbon::parse($this->created_at)->diffForHumans(),
+            'updated_at' => Carbon::parse($this->updated_at)->diffForHumans(),
         ];
     }
 }
