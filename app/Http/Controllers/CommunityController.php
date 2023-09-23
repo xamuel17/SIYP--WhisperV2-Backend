@@ -216,7 +216,7 @@ class CommunityController extends Controller
     }
 
 
-    public function getCommunityPost($community_id){
+    public function getCommunityPost($community_id, $page){
         //check if user is blocked
         if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $community_id, 'status' => 'blocked'])->count() != 0) {
             $response['responseMessage'] = 'You have been blocked from accessing this community';
@@ -226,7 +226,7 @@ class CommunityController extends Controller
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->get());
+        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->simplePaginate($page));
         return response()->json($response, 200);
     }
 
