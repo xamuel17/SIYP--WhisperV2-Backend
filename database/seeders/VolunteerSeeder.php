@@ -24,7 +24,8 @@ class VolunteerSeeder extends Seeder
                 'session'=> 0,
                 'description'=> "Olivia is a highly experienced therapist who has dedicated her life to helping others. With years of experience under her belt, she has developed a deep understanding of the complexities of mental health and the different ways in which people cope with life's challenges. Olivia is passionate about empowering her clients to take control of their mental health, and helping them find a path towards greater happiness and fulfillment. Her kind and compassionate approach, combined with her extensive knowledge and expertise, make her an invaluable resource for anyone seeking support and guidance on their mental health journey.",
                 'email' => "oliviathomas@gmail.com",
-                'phone' =>"+2349029088929"
+                'phone' =>"+2349029088929",
+                'photo'=>"olivia.png"
             ]);
 
 
@@ -36,7 +37,8 @@ class VolunteerSeeder extends Seeder
                 'session'=> 0,
                 'description'=> "James is a highly experienced therapist who has dedicated her life to helping others. With years of experience under her belt, she has developed a deep understanding of the complexities of mental health and the different ways in which people cope with life's challenges. Olivia is passionate about empowering her clients to take control of their mental health, and helping them find a path towards greater happiness and fulfillment. Her kind and compassionate approach, combined with her extensive knowledge and expertise, make her an invaluable resource for anyone seeking support and guidance on their mental health journey.",
                 'email' => "Jamesbones@gmail.com",
-                'phone' =>"+2349029088929"
+                'phone' =>"+2349029088929",
+                'photo'=>"james.jpg"
             ]);
 
 
