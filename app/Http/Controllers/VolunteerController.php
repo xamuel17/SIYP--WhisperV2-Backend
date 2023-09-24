@@ -79,7 +79,7 @@ class VolunteerController extends Controller
 
         $fileName = time() . "." . $extension;
         $fileName = "volunteer(" . auth()->user()->id . ")" . $fileName;
-        $path = $request->file('photo')->move(public_path("/users-images"), $fileName);
+        $path = $request->file('photo')->move(public_path("/volunteer-images"), $fileName);
 
         $photoURL = url('/' . $fileName);
 
