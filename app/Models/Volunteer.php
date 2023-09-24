@@ -12,6 +12,8 @@ class Volunteer extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'username',
+        'session',
         'photo',
         'role',
         'status',

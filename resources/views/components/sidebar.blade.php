@@ -4,7 +4,7 @@
       <img src="{{ asset('assets/images/whisper-icon.png') }}" class="logo-icon-2" alt="" />
     </div>
     <div>
-      <h4 class="logo-text">Whisper</h4>
+      <h4 class="logo-text">SIYP</h4>
     </div>
     <a href="javascript:;" class="toggle-btn ml-auto"> <i class="bx bx-menu"></i>
     </a>

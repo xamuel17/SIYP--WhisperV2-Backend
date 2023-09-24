@@ -148,7 +148,7 @@ public function deleteGuardianDistressMessage($id) {
             $username = DB::table('users')->where('id', $user_id)->pluck('username');
             $this->sendAdminConfirmEMail('support@whispertohumanity.com', $content, $longitude, $latitude, $phoneNo, $username);
 
-            $response['responseMessage'] = 'Message Sent To Whisper Response Team1';
+            $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         }
@@ -528,19 +528,19 @@ public function upload_Photo_file($encoded_string){
         $encoded_video =  $request->video;
         if ($encoded_video != '') {
             $radString = $this->generatePin(5);
-         
 
-                $encodeString = str_replace("null","",$encoded_video); 
+
+                $encodeString = str_replace("null","",$encoded_video);
 
             $fileName = $this->upload_file($encodeString);
-            
-            
+
+
         //     $fname = public_path() . '/distress-videos/test.txt';
         // file_put_contents($fname, $encoded_video);
-            
 
 
-        
+
+
 
             $guardianIds = DB::table('guardians')->where('ward_id', $user_id)->pluck('guardian_id');
 
@@ -562,7 +562,7 @@ public function upload_Photo_file($encoded_string){
                 $username = DB::table('users')->where('id', $user_id)->pluck('username');
                 $this->sendAdminConfirmEMail('support@whispertohumanity.com', $content,  $username);
 
-                $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+                $response['responseMessage'] = 'Message Sent To SIYP Response Team';
                 $response['responseCode'] = 00;
                 return response()->json($response, 200);
             }
@@ -690,9 +690,9 @@ public function upload_Photo_file($encoded_string){
 
 
 
-      
-              $encodeString = str_replace("null","",$encoded_audio); 
-      
+
+              $encodeString = str_replace("null","",$encoded_audio);
+
             $fileName = $this->upload_Audio_file($encodeString );
 
 
@@ -925,10 +925,10 @@ if ($file_type !== 'image') {
 
         $encoded_photo =  $request->photo;
         if ($encoded_photo != '') {
-      $encodeString = str_replace("null","",$encoded_photo); 
-         
+      $encodeString = str_replace("null","",$encoded_photo);
+
       $fileName = $this->upload_Photo_file($encodeString);
-  
+
             $guardianIds = DB::table('guardians')->where('ward_id', $user_id)->pluck('guardian_id');
 
             if ($guardianIds == '[]') {
@@ -1023,7 +1023,7 @@ if ($file_type !== 'image') {
             $this->sendNotification($notId, $title, $content, "5");
 
 
-            $response['responseMessage'] = 'Message Sent To Guardians and Whisper Response Team';
+            $response['responseMessage'] = 'Message Sent To Guardians and SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         } else {
@@ -1144,7 +1144,7 @@ if ($file_type !== 'image') {
             $username = DB::table('users')->where('id', $user_id)->pluck('username');
             $this->sendAdminConfirmEMail('support@whispertohumanity.com', $content, $longitude, $latitude, $phone_number, $username);
 
-            $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+            $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         }
@@ -1689,7 +1689,7 @@ if ($file_type !== 'image') {
             $username = DB::table('users')->where('id', $user_id)->pluck('username');
             $this->sendAdminConfirmEMail('support@whispertohumanity.com', $content,  $username);
 
-            $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+            $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         }
@@ -1744,7 +1744,7 @@ if ($file_type !== 'image') {
         }
 
 
-        $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+        $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
 
@@ -1982,7 +1982,7 @@ if ($file_type !== 'image') {
             $username = DB::table('users')->where('id', $user_id)->pluck('username');
             $this->sendAdminConfirmEMail('support@whispertohumanity.com', $content,  $username);
 
-            $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+            $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         }
@@ -2037,7 +2037,7 @@ if ($file_type !== 'image') {
         }
 
 
-        $response['responseMessage'] = 'Message Sent To Whisper Response Team';
+        $response['responseMessage'] = 'Message Sent To SIYP Response Team';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
 

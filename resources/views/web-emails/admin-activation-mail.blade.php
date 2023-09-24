@@ -1,7 +1,7 @@
 @component('mail::message')
 # Hello {{ $name }}
 
-You are receiving this mail because an account was setup for you on Whisper To Humanity.
+You are receiving this mail because an account was setup for you on SIYP.
 
 Click on the button below to complete setting up your account.
 

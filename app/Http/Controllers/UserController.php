@@ -107,7 +107,7 @@ class UserController extends Controller
 
                 //send notification to user
                 $notId = DB::table('users')->where('email', $request->email)->value('id');
-                $title = "Welcome to Whisper! ";
+                $title = "Welcome to SIYP! ";
                 $content = "Hello " . $request->username . "! \n We are Happy to have you on board! \n       SIYP is a social media safe space created by Whisper to Humanity to house young Nigerian feminists, build an unbreakable bond and create a generation of young people excited about equality in humanity and willing to be humans.";
 
                 try {
@@ -168,7 +168,7 @@ class UserController extends Controller
 
         $details = [
             'title' => 'Confirm your email address',
-            'body' => 'Your confirmation code is below — enter it in the Whisper Mobile App',
+            'body' => 'Your confirmation code is below — enter it in the SIYP Mobile App',
             'code' => $activationCode,
         ];
         Mail::to($email)->send(new ActivationMail($details));
@@ -302,7 +302,7 @@ class UserController extends Controller
 
         $details = [
             'title' => 'Password Forget',
-            'body' => 'Your confirmation code is below — enter it in the Whisper Mobile App',
+            'body' => 'Your confirmation code is below — enter it in the SIYP Mobile App',
             'code' => $activationCode,
         ];
         Mail::to($email)->send(new ActivationMail($details));
