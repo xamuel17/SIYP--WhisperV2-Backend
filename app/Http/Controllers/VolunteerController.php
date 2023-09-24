@@ -32,14 +32,16 @@ class VolunteerController extends Controller
         }else{
            $volunteer= Volunteer::create([
                 'user_id' => auth()->user()->id,
+                'username' => $request->username,
                 'role' => $request->role,
+                'session'=> 0,
                 'description'=> $request->description,
                 'email' => $request->email,
                 'phone' =>$request->phone
             ]);
             if(isset($volunteer)){
                 $response['responseMessage'] = 'Your application to volunteer as a '.$request->role.' for the SYIP app has been accepted';
-                $response['responseCode'] = 200;
+                $response['responseCode'] = 00;
                 return response()->json($response, 200);
             }else{
                 $response['responseMessage'] = 'volunteer application failed';
@@ -59,7 +61,7 @@ class VolunteerController extends Controller
     public function viewVolunteers()
     {
         $response['responseMessage'] = 'success';
-        $response['responseCode'] = 200;
+        $response['responseCode'] = 00;
         $response['data'] = VolunteerResource::collection(Volunteer::where('status', 'active')->get());
         return response()->json($response, 200);
     }
@@ -87,7 +89,7 @@ class VolunteerController extends Controller
 
        if(Volunteer::where('user_id', auth()->user()->id)->update($data)){
         $response['responseMessage'] = 'success';
-        $response['responseCode'] = 200;
+        $response['responseCode'] = 00;
         $response['data'] = $photoURL;
         return response()->json($response, 200);
        }else{
@@ -108,7 +110,7 @@ class VolunteerController extends Controller
     {
         if(Volunteer::where('user_id', auth()->user()->id)->update(['status' => $request->status])){
             $response['responseMessage'] = 'success';
-            $response['responseCode'] = 200;
+            $response['responseCode'] = 00;
             return response()->json($response, 200);
            }else{
             $response['responseMessage'] = 'failed';
@@ -139,7 +141,7 @@ class VolunteerController extends Controller
         $formattedDate = $date->format('F j, Y');
         if(isset( $volunteer )){
             $response['responseMessage'] = 'Appointment  time for ' .$formattedDate. ' has been set.';
-            $response['responseCode'] = 200;
+            $response['responseCode'] = 00;
             return response()->json($response, 200);
            }else{
             $response['responseMessage'] = 'Ohh Snap! Something went wrong';
@@ -164,7 +166,7 @@ class VolunteerController extends Controller
     ->get();
 
         $response['responseMessage'] = 'success';
-        $response['responseCode'] = 200;
+        $response['responseCode'] = 00;
         $response['data'] =  $availableTimeSlots;
         return response()->json($response, 200);
     }
@@ -183,7 +185,7 @@ class VolunteerController extends Controller
         ])->delete();
         if(isset( $volunteer )){
             $response['responseMessage'] = 'Available time has been removed';
-            $response['responseCode'] = 200;
+            $response['responseCode'] = 00;
             return response()->json($response, 200);
            }else{
             $response['responseMessage'] = 'Ohh Snap! Something went wrong';
@@ -203,7 +205,7 @@ class VolunteerController extends Controller
         ]);
         if(isset($volunteer)){
             $response['responseMessage'] = 'Your request for booking is currently pending approval.';
-            $response['responseCode'] = 200;
+            $response['responseCode'] = 00;
             return response()->json($response, 200);
         }else{
             $response['responseMessage'] = 'Appointment booking failed';
@@ -214,7 +216,7 @@ class VolunteerController extends Controller
 
     public function volunteerViewBooking($status){
         $response['responseMessage'] = 'success';
-        $response['responseCode'] = 200;
+        $response['responseCode'] = 00;
         $response['data'] = VoluteerAppointment::where(['volunteer_id' => auth()->user()->id, 'status' =>$status ])->get();
         return response()->json($response, 200);
     }
@@ -224,7 +226,7 @@ class VolunteerController extends Controller
         $volunteer = VoluteerAppointment::where(['volunteer_id' => auth()->user()->id, 'id' =>$id ])->update(['status' => $status]);
         if(isset($volunteer)){
             $response['responseMessage'] = 'Appointment booking status has been updated';
-            $response['responseCode'] = 200;
+            $response['responseCode'] = 00;
             return response()->json($response, 200);
         }else{
             $response['responseMessage'] = 'Appointment booking status failed to update';
