@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFlagPostsTable extends Migration
+class ReportsUpdate extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateFlagPostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('flag_posts', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('post_id');
-            $table->unsignedBigInteger('user_id');
-            $table->timestamps();
+        Schema::table('reports', function (Blueprint $table) {
+            $table->string('comment_id')->after('post_id')->nullable();
         });
     }
 
@@ -28,6 +25,6 @@ class CreateFlagPostsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('flag_posts');
+        //
     }
 }

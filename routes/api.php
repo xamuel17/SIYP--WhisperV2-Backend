@@ -188,10 +188,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/community/post/{community_id}/{page}', [CommunityController::class, 'getCommunityPost']);
     Route::post('/community/action', [CommunityController::class, 'likeDislikeCommunityPostOrReply']);
     Route::post('/community/post/reply', [CommunityController::class, 'replyCommunityPost']);
-    Route::post('/community/comment/reply', [CommunityController::class, 'replyReplies']);
+    Route::post('/community/comment/reply', [CommunityController::class, 'commentReply']);
     Route::get('/community/home/{page}', [CommunityController::class, 'CommunityDashboard']);
 
 
+    Route::get('/community/rules', [CommunityController::class, 'viewCommunityRules']);
+    Route::post('/community/report/comment', [CommunityController::class, 'reportCommunityComment']);
+    Route::post('/community/report/post', [CommunityController::class, 'reportCommunityPost']);
 
     Route::post('/volunteer', [VolunteerController::class, 'createVolunteer']);
     Route::get('/volunteers', [VolunteerController::class, 'viewVolunteers']);

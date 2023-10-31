@@ -47,7 +47,5 @@ class RulesController extends Controller
         $response['responseCode'] = 00;
         $response['data'] = $rules;
         return response($response, 200);
-
-
     }
 }

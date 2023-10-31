@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CommunityHasPostCommentResource;
 use App\Http\Resources\CommunityHasPostResource;
 use App\Http\Resources\CommunityResource;
+use App\Http\Resources\RuleResource;
 use App\Models\Community;
 use App\Models\CommunityCommentHasReply;
 use App\Models\CommunityHasComments;
 use App\Models\CommunityHasPosts;
 use App\Models\CommunityMember;
 use App\Models\CommunityPostReplyLike;
+use App\Models\Post;
+use App\Models\Report;
+use App\Models\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -399,7 +403,7 @@ class CommunityController extends Controller
 
 
 
-    public function replyReplies(Request $request){
+    public function commentReply(Request $request){
                 //check if user is blocked
             if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $request->community_id, 'status' => 'blocked'])->count() != 0) {
                 $response['responseMessage'] = 'You have been blocked from accessing this community';
@@ -417,11 +421,11 @@ class CommunityController extends Controller
         }
 
         if(isset($comment)){
-            $response['responseMessage'] = 'The comment reply successful.';
+            $response['responseMessage'] = 'Reply sent!.';
             $response['responseCode'] = 200;
             return response()->json($response, 200);
         }else{
-            $response['responseMessage'] = 'The comment reply successfully.';
+            $response['responseMessage'] = 'Opps,something went wrong.';
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
         }
@@ -574,6 +578,69 @@ class CommunityController extends Controller
     }
     return $fileName;
 }
+
+
+    public function viewCommunityRules(){
+
+        $response['responseMessage'] = 'success';
+        $response['responseCode'] = 00;
+        $response['data'] = Rule::orderBy('created_at', 'DESC')->get(['id', 'content']);
+        return response($response, 200);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function reportCommunityComment(Request $request){
+        $post = CommunityHasPosts::where(['id'=> $request->post_id, 'community_id' =>$request->community_id])->first();
+
+        if(isset($post)){
+
+          Report::updateOrInsert(
+                ['post_id' => $request->post_id, 'comment_id' => $request->comment_id, 'user_id' => auth()->user()->id], // Conditions to check for an existing record
+                ['content' => $request->content,'comment_id' => $request->comment_id,  'post_id' => $request->post_id, 'rule_id' => $request->rule_id, 'user_id' => auth()->user()->id] // Data to insert or update
+            );
+            $response['responseMessage'] = 'post has been reported';
+            $response['responseCode'] = 00;
+            return response($response, 200);
+        }else{
+            $response['responseMessage'] = 'post not found';
+            $response['responseCode'] = -1001;
+            return response($response, 200);
+        }
+
+    }
+
+
+        /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function reportCommunityPost(Request $request){
+        $post = CommunityHasPosts::where(['id'=> $request->post_id, 'community_id' =>$request->community_id])->first();
+
+        if(isset($post)){
+
+          Report::updateOrInsert(
+                ['post_id' => $request->post_id , 'user_id' => auth()->user()->id , 'comment_id' => ''], // Conditions to check for an existing record
+                ['content' => $request->content,  'post_id' => $request->post_id, 'rule_id' => $request->rule_id, 'user_id' => auth()->user()->id] // Data to insert or update
+            );
+            $response['responseMessage'] = 'post has been reported';
+            $response['responseCode'] = 00;
+            return response($response, 200);
+        }else{
+            $response['responseMessage'] = 'post not found';
+            $response['responseCode'] = -1001;
+            return response($response, 200);
+        }
+
+    }
+
 
     public function uploadPhoto(Request $request, $postId)
     {

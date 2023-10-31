@@ -8,8 +8,8 @@ use App\Models\CommunityPostReplyLike;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Str;
+
 class CommunityHasPostCommentResource extends JsonResource
 {
     /**
@@ -21,60 +21,65 @@ class CommunityHasPostCommentResource extends JsonResource
     public function toArray($request)
     {
 
-            $photoStrings = json_decode($this->photos);
-            $baseUrl =  env("APP_URL")."/users-community-images/" ;
+        $photoStrings = json_decode($this->photos);
+        $baseUrl = env("APP_URL") . "/users-community-images/";
 
-            $photoUrls = [];
-            if (is_array($photoStrings)) {
-                foreach ($photoStrings as $photoString) {
-                    // Combine the base URL and the photo string to create the full URL
-                    $photoUrl = $baseUrl . $photoString;
+        $photoUrls = [];
+        if (is_array($photoStrings)) {
+            foreach ($photoStrings as $photoString) {
+                // Combine the base URL and the photo string to create the full URL
+                $photoUrl = $baseUrl . $photoString;
 
-                    // Add the full URL to the $photoUrls array
-                    $photoUrls[] = $photoUrl;
-                }
+                // Add the full URL to the $photoUrls array
+                $photoUrls[] = $photoUrl;
             }
-    $video = "";
-    if(!empty($this->videos)){ $video = env('APP_URL')."/users-community-videos/". $this->videos;}
+        }
+        $video = "";
+        if (!empty($this->videos)) {$video = env('APP_URL') . "/users-community-videos/" . $this->videos;}
 
-        $likes =  CommunityPostReplyLike::where([
+        $likes = CommunityPostReplyLike::where([
             'type' => 'post',
             'selected_id' => $this->id,
-            'action'=> true
+            'action' => true,
         ])->count();
 
-        $dislikes =  CommunityPostReplyLike::where([
+        $dislikes = CommunityPostReplyLike::where([
             'type' => 'post',
             'selected_id' => $this->id,
-            'action'=> false
+            'action' => false,
         ])->count();
 
-
-
-
-        $replyLikes =  CommunityPostReplyLike::where([
+        $replyLikes = CommunityPostReplyLike::where([
             'type' => 'reply',
             'selected_id' => $this->id,
-            'action'=> true
+            'action' => true,
         ])->count();
 
-        $replyCommentCount= CommunityCommentHasReply::where([
-            'community_comment_id' => $this->id
+        $replyCommentCount = CommunityCommentHasReply::where([
+            'community_comment_id' => $this->id,
+            'is_flagged' => false,
         ])->count();
 
-        $replyComments = CommunityCommentHasReply::where([
-            'community_comment_id' => $this->id
-        ])->get();
-
-        $commentCount= CommunityHasComments::where([
-            'community_post_id' => $this->id
+        $commentCount = CommunityHasComments::where([
+            'community_post_id' => $this->id,
         ])->count();
 
-        $comments = CommunityCommentResource::collection(CommunityHasComments::where('community_post_id', $this->id)->get());
+        $comments = CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $this->id, 'is_flagged' => false])->get());
+
+        $firstQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'user_id' => auth()->user()->id, 'is_flagged' => false])
+            ->latest()
+            ->limit(1)
+            ->get();
+
+        $secondQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'is_flagged' => false])
+            ->whereNotIn('id', $firstQuery->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $replyComments = $firstQuery->concat($secondQuery);
 
         $user = User::where('id', $this->user_id)->first();
-        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
-
+        $user_photo = $user->profile_pic ? env("APP_URL") . "/users-images/" . $user->profile_pic : env("APP_URL") . "/users-images/" . "avatar.JPG";
 
         // Replace $date with your actual date
         $date = Carbon::parse($this->created_at);
@@ -82,34 +87,30 @@ class CommunityHasPostCommentResource extends JsonResource
         // Format the date in a human-readable way
         $formattedDate = $date->diffForHumans();
 
-
         return [
 
-            'id' =>$this->id,
-            'community_id'=>$this->community_id,
-            'user_photo'=>$user_photo,
-            'user_name'=> Str::limit($user->username, 8,'...'),
-            "user_firstname" => Str::limit($user->firstname, 6,'...'),
-            'user_id'=>$this->user_id,
+            'id' => $this->id,
+            'community_id' => $this->community_id,
+            'user_photo' => $user_photo,
+            'user_name' => Str::limit($user->username, 8, '...'),
+            "user_firstname" => Str::limit($user->firstname, 6, '...'),
+            'user_id' => $this->user_id,
             'title' => $this->name,
-            'photo' =>$photoUrls,
-            'videos'=>  $video,
-            'likes'=> $likes ,
-            'dislikes'=>$dislikes,
+            'photo' => $photoUrls,
+            'videos' => $video,
+            'likes' => $likes,
+            'dislikes' => $dislikes,
             'comment_count' => $commentCount,
             "comment" => $comments,
-            'content'=>$this->content,
+            'content' => $this->content,
             'status' => $this->status,
-            'reply_likes'=> $replyLikes,
-            'reply_comment_count'=>$replyCommentCount,
+            'reply_likes' => $replyLikes ?? 0,
+            'reply_comment_count' => $replyCommentCount ?? 0,
             'reply_comments' => $replyComments,
-            'is_flagged'=>$this->is_flagged,
-            'created_at'=>$formattedDate
+            'is_flagged' => $this->is_flagged,
+            'created_at' => $formattedDate,
 
         ];
     }
-
-
-
 
 }

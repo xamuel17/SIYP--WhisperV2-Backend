@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\CommentReply;
+use App\Models\CommunityCommentHasReply;
 use App\Models\CommunityPostReplyLike;
 use App\Models\User;
 use Carbon\Carbon;
@@ -57,6 +59,7 @@ class CommunityCommentResource extends JsonResource
                 // Format the date in a human-readable way
                 $formattedDate = $date->diffForHumans();
 
+                $replyCount = CommunityCommentHasReply::where(['community_comment_id' => $this->id])->count();
 
         return [
 
@@ -67,7 +70,8 @@ class CommunityCommentResource extends JsonResource
             "user_firstname" => Str::limit($user->firstname, 6,'...'),
             'content'=>$this->content,
             'photos'=>$photoUrls,
-            'likes'=> $likes ,
+            'likes'=> $likes  ,
+            'reply_count' => $replyCount,
             'dislikes'=>$dislikes,
             'created_at'=>$formattedDate
 
