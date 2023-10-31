@@ -22,7 +22,8 @@ class DatabaseSeeder extends Seeder
             WebRoleSeeder::class,
             AdminSeeder::class,
             UserSeeder::class,
-            VolunteerSeeder::class
+            VolunteerSeeder::class,
+            RuleSeeder::class
         ]);
     }
 }
