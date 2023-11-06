@@ -64,19 +64,27 @@ class CommunityHasPostCommentResource extends JsonResource
             'community_post_id' => $this->id,
         ])->count();
 
-        $comments = CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $this->id, 'is_flagged' => false])->get());
+       // $comments = CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $this->id, 'is_flagged' => false])->get());
 
-        $firstQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'user_id' => auth()->user()->id, 'is_flagged' => false])
-            ->latest()
-            ->limit(1)
-            ->get();
 
-        $secondQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'is_flagged' => false])
-            ->whereNotIn('id', $firstQuery->pluck('id'))
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $commentsFirstQuery =CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $this->id, 'is_flagged' => false , 'user_id' => auth()->user()->id,])->latest()->limit(3)->get());
 
-        $replyComments = $firstQuery->concat($secondQuery);
+       $commentsSecondQuery =CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $this->id, 'is_flagged' => false])->whereNotIn('id', $commentsFirstQuery->pluck('id'))->orderBy('created_at', 'desc')->get());
+
+
+       $comments = $commentsFirstQuery->concat($commentsSecondQuery);
+
+        // $firstQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'user_id' => auth()->user()->id, 'is_flagged' => false])
+        //     ->latest()
+        //     ->limit(1)
+        //     ->get();
+
+        // $secondQuery = CommunityCommentHasReply::where(['community_comment_id' => $this->id, 'is_flagged' => false])
+        //     ->whereNotIn('id', $firstQuery->pluck('id'))
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
+        // $replyComments = $firstQuery->concat($secondQuery);
 
         $user = User::where('id', $this->user_id)->first();
         $user_photo = $user->profile_pic ? env("APP_URL") . "/users-images/" . $user->profile_pic : env("APP_URL") . "/users-images/" . "avatar.JPG";
@@ -106,7 +114,7 @@ class CommunityHasPostCommentResource extends JsonResource
             'status' => $this->status,
             'reply_likes' => $replyLikes ?? 0,
             'reply_comment_count' => $replyCommentCount ?? 0,
-            'reply_comments' => $replyComments,
+          //  'reply_comments' => $replyComments,
             'is_flagged' => $this->is_flagged,
             'created_at' => $formattedDate,
 
