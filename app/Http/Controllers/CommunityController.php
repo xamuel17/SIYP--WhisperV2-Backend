@@ -81,6 +81,37 @@ class CommunityController extends Controller
         }
     }
 
+    public function DeleteMyCommunityPost($post_id){
+
+        $post = CommunityHasPosts::where(['id' =>  $post_id , 'user_id' => auth()->user()->id])->first()->delete();
+        if($post){
+            $response['responseMessage'] = 'success';
+            $response['responseCode'] = 00;
+            $response['data'] = "Post Successfully Deleted";
+            return response()->json($response, 200);
+        }else{
+            $response['responseMessage'] = 'Failed';
+            $response['responseCode'] = -1001;
+            $response['data'] = "Post Deletion Failed";
+            return response()->json($response, 200);
+        }
+    }
+
+    public function DeleteMyCommunityComment($comment_id){
+        $post = CommunityHasComments::where(['id' =>  $comment_id , 'user_id' => auth()->user()->id])->first()->delete();
+        if($post){
+            $response['responseMessage'] = 'success';
+            $response['responseCode'] = 00;
+            $response['data'] = "Comment Successfully Deleted";
+            return response()->json($response, 200);
+        }else{
+            $response['responseMessage'] = 'Failed';
+            $response['responseCode'] = -1001;
+            $response['data'] = "Comment Deletion Failed";
+            return response()->json($response, 200);
+        }
+
+    }
     /**
      * Display the specified resource.
      *
