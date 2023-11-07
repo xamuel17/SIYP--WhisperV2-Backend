@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CommunityCommentResource;
 use App\Http\Resources\CommunityHasPostCommentResource;
 use App\Http\Resources\CommunityHasPostResource;
 use App\Http\Resources\CommunityResource;
@@ -98,11 +99,16 @@ class CommunityController extends Controller
     }
 
     public function DeleteMyCommunityComment($comment_id){
-        $post = CommunityHasComments::where(['id' =>  $comment_id , 'user_id' => auth()->user()->id])->first()->delete();
+        $post = CommunityHasComments::where(['id' =>  $comment_id , 'user_id' => auth()->user()->id])->first();
+        $postId = $post->community_post_id;
+        $post->delete();
         if($post){
+        $commentsFirstQuery =CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $postId, 'is_flagged' => false , 'user_id' => auth()->user()->id,])->latest()->limit(3)->get());
+        $commentsSecondQuery =CommunityCommentResource::collection(CommunityHasComments::where(['community_post_id' => $postId, 'is_flagged' => false])->whereNotIn('id', $commentsFirstQuery->pluck('id'))->orderBy('created_at', 'desc')->get());
+        $comments = $commentsFirstQuery->concat($commentsSecondQuery);
             $response['responseMessage'] = 'success';
             $response['responseCode'] = 00;
-            $response['data'] = "Comment Successfully Deleted";
+            $response['data'] = $comments;
             return response()->json($response, 200);
         }else{
             $response['responseMessage'] = 'Failed';
