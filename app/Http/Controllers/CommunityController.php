@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CommunityCommentResource;
 use App\Http\Resources\CommunityHasPostCommentResource;
 use App\Http\Resources\CommunityHasPostResource;
+use App\Http\Resources\CommunityHasReplyCommentResource;
 use App\Http\Resources\CommunityResource;
 use App\Http\Resources\RuleResource;
+use App\Models\CommentReply;
 use App\Models\Community;
 use App\Models\CommunityCommentHasReply;
 use App\Models\CommunityHasComments;
@@ -303,6 +305,12 @@ class CommunityController extends Controller
     }
 
 
+    public function getPostCommentReply($comment_id){
+        $response['responseMessage'] = 'success';
+        $response['responseCode'] = 00;
+        $response['data'] = CommunityHasReplyCommentResource::collection(CommunityCommentHasReply::where(['community_comment_id' =>  $comment_id])->get());
+        return response()->json($response, 200);
+    }
 
 
     public function likeDislikePost($selectedId, $userId , $state, $communityId ){

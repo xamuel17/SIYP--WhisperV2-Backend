@@ -194,7 +194,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/community/comment/delete/{comment_id}', [CommunityController::class, 'DeleteMyCommunityComment']);
 
     Route::post('/community/post/reply', [CommunityController::class, 'replyCommunityPost']);
-
+    Route::get('/community/post/reply/{comment_id}', [CommunityController::class, 'getPostCommentReply']);
     Route::get('/community/rules', [CommunityController::class, 'viewCommunityRules']);
     Route::post('/community/report/comment', [CommunityController::class, 'reportCommunityComment']);
     Route::post('/community/report/post', [CommunityController::class, 'reportCommunityPost']);
