@@ -142,9 +142,10 @@ class CommunityController extends Controller
      */
     public function getCommunity($community_id)
     {
+
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['data'] = CommunityResource::collection(Community::where(['id' => $community_id, 'status' => 'active'])->first());
+        $response['data'] = new CommunityResource(Community::where(['id' => $community_id, 'status' => 'active'])->first());
         return response()->json($response, 200);
     }
 
