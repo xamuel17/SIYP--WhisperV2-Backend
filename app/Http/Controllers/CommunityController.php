@@ -280,7 +280,7 @@ class CommunityController extends Controller
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->simplePaginate($page));
+        $response['data'] = CommunityHasPostCommentResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->orderBy('id', 'desc')->simplePaginate($page));
         return response()->json($response, 200);
     }
 
@@ -293,6 +293,7 @@ class CommunityController extends Controller
         // Fetch posts from communities where the user is a member and the status is '1'
         $posts = CommunityHasPosts::whereIn('community_id', $communityIds)
             ->where('status', '1')
+            ->orderBy('id', 'desc')
             ->simplePaginate($page);
 
         // Prepare the JSON response
