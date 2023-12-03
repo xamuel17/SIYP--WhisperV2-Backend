@@ -269,7 +269,6 @@ class CommunityController extends Controller
 
     }
 
-
     public function getCommunityPost($community_id, $page){
         //check if user is blocked
         if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $community_id, 'status' => 'blocked'])->count() != 0) {
