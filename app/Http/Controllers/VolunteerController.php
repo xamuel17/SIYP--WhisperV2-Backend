@@ -261,7 +261,7 @@ class VolunteerController extends Controller
 
             $response['responseMessage'] = 'success';
             $response['responseCode'] = 00;
-            $response['data'] =ChatResource::collection(Chat::where(['chat_id' => $chat_id,  'started' => null])->get());
+            $response['data'] =ChatResource::collection(Chat::where(['chat_id' => $chat_id,  'started' => null])->orderByDesc('created_at')->get());
             return response()->json($response, 200);
     }
 
@@ -273,8 +273,9 @@ public function createChat(Request $request)
     $chat = Chat::where([
         'user_id' => auth()->user()->id,
         'volunteer_id' => $request->volunteer_id,
-        'started' => true,
+        'started' => 1,
     ])->first();
+
     
     $chatId = $chat ? $chat->chat_id : null;
     
@@ -300,6 +301,7 @@ public function createChat(Request $request)
         'sent' => true,
         'chat_id' => $chatId,
         'image' => $photo,
+       // 'volunteer_id' =>$request->volunteer_id
     ];
 
     if (Volunteer::where('user_id', auth()->user()->id)->exists()) {
