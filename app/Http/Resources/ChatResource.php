@@ -37,13 +37,19 @@ class ChatResource extends JsonResource
                 $image = env("APP_URL") . "/users-chat-images/".$this->image;
             }
 
+                        // Replace $date with your actual date
+                        $date = Carbon::parse($this->created_at);
+
+                        // Format the date in a human-readable way
+                        $formattedDate = $date->diffForHumans();
+
         return [
             'id' => $this->_id,
             'text' => Crypt::decrypt($this->text),
             'image'=>$image,
             'sent'=>$this->sent,
             'received'=>$this->received,
-            'createdAt' => $this->created_at,
+            'createdAt' => $formattedDate,
             'user' => $user
          ];
     }

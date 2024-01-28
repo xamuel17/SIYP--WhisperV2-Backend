@@ -40,6 +40,12 @@ class ChatListResource extends JsonResource
         ]);  
     }
 
+            // Replace $date with your actual date
+            $date = Carbon::parse($this->created_at);
+
+            // Format the date in a human-readable way
+            $formattedDate = $date->diffForHumans();
+
 // Fetch most recent text and time
 $chat = Chat::where(['chat_id' => $this->chat_id, 'started' => null])
     ->latest('created_at')
@@ -48,7 +54,7 @@ $chat = Chat::where(['chat_id' => $this->chat_id, 'started' => null])
       return [
           'id' => $this->_id,
           'text' => Crypt::decrypt($chat->text),
-          'created_at' => $chat->created_at,
+          'created_at' => $formattedDate,
           'user' => $user,
           'role' => $role
        ];
