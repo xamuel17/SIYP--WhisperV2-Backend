@@ -269,16 +269,6 @@ class VolunteerController extends Controller
  
 public function createChat(Request $request)
 {
-    // Check if chatId exists
-    $chat = Chat::firstOrNew([
-        'user_id' => auth()->user()->id,
-        'volunteer_id' => $request->volunteer_id,
-        'started' => true,
-    ], [
-        'user_id' => auth()->user()->id,
-        'volunteer_id' => $request->volunteer_id,
-        'started' => true
-    ]);
 
     $chat = Chat::where([
         'user_id' => auth()->user()->id,
