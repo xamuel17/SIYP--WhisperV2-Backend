@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\User;
+use Carbon\Carbon;
 
 class ChatResource extends JsonResource
 {
