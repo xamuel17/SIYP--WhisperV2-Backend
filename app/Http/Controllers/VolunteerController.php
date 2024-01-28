@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ChatResource;
+use App\Http\Resources\ChatListResource;
 use App\Http\Resources\VolunteerResource;
+use App\Models\Chat;
 use App\Models\Volunteer;
 use App\Models\VoluteerAppointment;
 use App\Models\VoluteerAvailableDays;
+use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class VolunteerController extends Controller
@@ -234,6 +239,110 @@ class VolunteerController extends Controller
             return response()->json($response, 200);
         }
     }
+
+
+    public function retrieveChatList(){
+
+        //check user role
+        $chatList= null;
+        if(Volunteer::where('user_id', auth()->user()->id)->exists()){
+           $chatList= ChatListResource::collection(Chat::where(['volunteer_id' => auth()->user()->id,  'started' => true])->get());
+        }else{
+            $chatList= ChatListResource::collection(Chat::where(['user_id' => auth()->user()->id,  'started' => true])->get());
+        }
+        $response['responseMessage'] = 'success';
+        $response['responseCode'] = 00;
+        $response['data'] =$chatList;
+        return response()->json($response, 200);
+    }
+
+
+    public function retrieveChats($chat_id){
+
+            $response['responseMessage'] = 'success';
+            $response['responseCode'] = 00;
+            $response['data'] =ChatResource::collection(Chat::where(['chat_id' => $chat_id,  'started' => null])->get());
+            return response()->json($response, 200);
+    }
+
+
+ 
+public function createChat(Request $request)
+{
+    // Check if chatId exists
+    $chat = Chat::firstOrNew([
+        'user_id' => auth()->user()->id,
+        'volunteer_id' => $request->volunteer_id,
+        'started' => true,
+    ], [
+        'user_id' => auth()->user()->id,
+        'volunteer_id' => $request->volunteer_id,
+        'started' => true
+    ]);
+
+    $chat = Chat::where([
+        'user_id' => auth()->user()->id,
+        'volunteer_id' => $request->volunteer_id,
+        'started' => true,
+    ])->first();
+    
+    $chatId = $chat ? $chat->chat_id : null;
+    
+    If($chatId == null){
+        $chatId = (string) Str::uuid();
+       $Id=  Chat::Create([
+            'user_id' => auth()->user()->id,
+            'volunteer_id' => $request->volunteer_id,
+            'chat_id' => $chatId,
+            'started' => true,  
+       ]);
+    }
+
+
+    $photo = null;
+
+    if ($request->has('photo')) {
+        $photo = $this->uploadChatImage($request, auth()->user()->id);
+    }
+
+    $requestData = [
+        'text' => Crypt::encrypt($request->text),
+        'sent' => true,
+        'chat_id' => $chatId,
+        'image' => $photo,
+    ];
+
+    if (Volunteer::where('user_id', auth()->user()->id)->exists()) {
+        $requestData['volunteer_id'] = auth()->user()->id;
+    } else {
+        $requestData['user_id'] = auth()->user()->id;
+    }
+
+    if (Chat::create($requestData)) {
+        $response['responseMessage'] = 'success';
+        $response['responseCode'] = 00;
+        return response()->json($response, 200);
+    } else {
+        $response['responseMessage'] = 'failed';
+        $response['responseCode'] = -1001;
+        return response()->json($response, 200);
+    }
+}
+
+public function uploadChatImage(Request $request, $userId)
+{
+
+    $fileName = "";
+    $request->validate([
+        'photo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
+    $extension = $request->file('photo')->extension();
+    $fileName = $userId . '-' . time() . '.' . $extension;
+    $path = $request->file('photo')->move(public_path('users-chat-images'), $fileName);
+    $photoURL = url('/users-chat-images/' . $fileName);
+    
+    return $fileName;
+}
 
 
 

@@ -210,8 +210,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/volunteer/booking', [VolunteerController::class, 'volunteerViewBooking']);
     Route::get('/volunteer/booking-update/{status}/{id}', [VolunteerController::class, 'updateBookingStatus']);
 
-
-
+    Route::post('/volunteer/chat', [VolunteerController::class, 'createChat']);
+    Route::get('/volunteer/chats/{chat_id}', [VolunteerController::class, 'retrieveChats']);
+    Route::get('/volunteer/chat-list', [VolunteerController::class, 'retrieveChatList']);
+    
 });
 
 
