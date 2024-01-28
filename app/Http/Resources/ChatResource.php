@@ -41,8 +41,10 @@ class ChatResource extends JsonResource
                         // Replace $date with your actual date
                         $date = Carbon::parse($this->created_at);
 
-                        // Format the date in a human-readable way
-                        $formattedDate = $date->diffForHumans();
+
+                        // Format the date to be compatible with JavaScript's new Date() constructor
+                $formattedDate = $date->toISOString();
+
 
         return [
             '_id' => $this->_id,
