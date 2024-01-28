@@ -57,6 +57,7 @@ $chat = Chat::where(['chat_id' => $this->chat_id, 'started' => null])
           'text' => Crypt::decrypt($chat->text),
           'created_at' => $formattedDate,
           'user' => $user,
+          'chat_id' => $this->chat_id,
           'role' => $role
        ];
     }

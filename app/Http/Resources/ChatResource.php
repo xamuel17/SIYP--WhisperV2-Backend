@@ -45,7 +45,7 @@ class ChatResource extends JsonResource
                         $formattedDate = $date->diffForHumans();
 
         return [
-            'id' => $this->_id,
+            '_id' => $this->_id,
             'text' => Crypt::decrypt($this->text),
             'image'=>$image,
             'sent'=>$this->sent,
