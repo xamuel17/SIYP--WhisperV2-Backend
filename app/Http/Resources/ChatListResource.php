@@ -28,7 +28,7 @@ class ChatListResource extends JsonResource
         //     \DB::raw("COALESCE(profile_pic, '" . env("APP_URL") . "/users-images/avatar.JPG') as avatar")
         // ]);
         $user = Volunteer::where('user_id', $this->volunteer_id)->first([
-            'user_id as volunteer_id', 'role', 'status', 'email', 'phone',
+            'user_id as volunteer_id', 'role', 'status', 'email', 'phone', 'username',
             \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar")
         ]);
         
@@ -40,6 +40,12 @@ class ChatListResource extends JsonResource
             \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar")
         ]);  
     }
+
+    $owner=User::where('id', $this->user_id)->first([
+        'id as _id',
+        'username as name',
+        \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar")
+    ]); 
 
             // Replace $date with your actual date
             $date = Carbon::parse($this->created_at);
@@ -58,7 +64,8 @@ $chat = Chat::where(['chat_id' => $this->chat_id, 'started' => null])
           'created_at' => $formattedDate,
           'user' => $user,
           'chat_id' => $this->chat_id,
-          'role' => $role
+          'role' => $role,
+          'owner' => $owner
        ];
     }
 }
