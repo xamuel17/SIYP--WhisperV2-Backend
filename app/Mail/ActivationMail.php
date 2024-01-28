@@ -32,6 +32,6 @@ class ActivationMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Activation Mail From Whisper Team')->view('emails.ActivationMail');
+        return $this->subject('Activation Mail From SIYP Team')->view('emails.ActivationMail');
     }
 }

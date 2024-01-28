@@ -28,7 +28,9 @@ class CreateGuardianDistressMessagesTable extends Migration
             $table->string('phone_number')->nullable();
             $table->string('priority')->nullable();
             $table->string('status')->nullable();
+            $table->string('location')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

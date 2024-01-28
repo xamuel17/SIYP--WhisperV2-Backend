@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\GuardianController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\EmergencyController;
 use App\Http\Controllers\DistressMessageController;
 use App\Http\Controllers\RulesController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\VolunteerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +48,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/users/dp/{id}', [UserController::class, 'viewPic']);
     Route::post('/users/search', [UserController::class, 'searchUser']);
     Route::post('/find/user', [UserController::class, 'searchUserByUsername']);
-
+    Route::post('/users/language', [UserController::class, 'saveLanguage']);
 
 
     //PostController
@@ -114,25 +116,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/message/priority', [DistressMessageController::class, 'changeDistressPriority']);
     Route::get('guardian/message/{id}', [DistressMessageController::class, 'guardianViewAllDistress']);
     Route::get('guardian/message/{id}/{priority}', [DistressMessageController::class, 'guardianViewDistressOnPriority']);
-
     Route::get('guardian/message/single/{id}/{msg_id}', [DistressMessageController::class, 'guardianViewSingleMessage']);
-
-
-
-
-
     Route::get('ward/message/{id}', [DistressMessageController::class, 'wardViewAllDistress']);
-
     Route::get('ward/message/{id}/{priority}', [DistressMessageController::class, 'wardViewDistressOnPriority']);
-
-
-
     Route::get('ward/message/single/{id}/{msg_id}', [DistressMessageController::class, 'wardViewSingleMessage']);
-
-
-
-
-
     Route::get('guardian/delete/distress/{id}', [DistressMessageController::class, 'deleteGuardianDistressMessage']);
     Route::get('ward/delete/distress/{id}', [DistressMessageController::class, 'deleteDistressMessage']);
 
@@ -166,11 +153,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/check/notifications/{id}', [NotificationsController::class, 'checkNotifications']);
 
 
-    Route::post('/sos', [EmergencyController::class, 'store']);
-    Route::get('/sos/{id}', [EmergencyController::class, 'getAssignedNumber']);
+    Route::post('/sos/number', [EmergencyController::class, 'addNumber']);
+    Route::get('/sos/number', [EmergencyController::class, 'getAssignedNumber']);
     Route::post('/sos/assign', [EmergencyController::class, 'assignNumber']);
-    Route::get('/sos/num/delete/{id}', [EmergencyController::class, 'deleteNumber']);
-    Route::get('/sos/num/{id}', [EmergencyController::class, 'getAllNumbers']);
+    Route::post('/sos/number/delete', [EmergencyController::class, 'deleteNumber']);
+    Route::get('/sos/numbers', [EmergencyController::class, 'getAllNumbers']);
 
 
 
@@ -183,13 +170,50 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/offenders/true/{id}', [OffenderController::class, 'fetchTrues']);
     Route::get('/offenders/false/{id}', [OffenderController::class, 'fetchFalse']);
     Route::get('/offenders/notsure/{id}', [OffenderController::class, 'fetchNotSure']);
-
-
     Route::post('/offenders/true', [OffenderController::class, 'voteTrue']);
     Route::post('/offenders/false', [OffenderController::class, 'voteFalse']);
     Route::post('/offenders/notsure', [OffenderController::class, 'voteNotSure']);
-
     Route::post('/offence', [OffenderController::class, 'makeOffencePost']);
+
+
+
+    Route::post('/community', [CommunityController::class, 'createCommunity']);
+    Route::get('/community', [CommunityController::class, 'getCommunities']);
+    Route::get('/community-detail/{community_id}', [CommunityController::class, 'getCommunity']);
+    Route::get('/user/community', [CommunityController::class, 'getCommunityByUser']);
+    Route::post('/community/follow', [CommunityController::class, 'joinCommunity']);
+    Route::get('/community/follows', [CommunityController::class, 'getFollowingCommunity']);
+    Route::post('/community/post', [CommunityController::class, 'makeCommunityPost']);
+    Route::get('/community/post-single/{post_id}', [CommunityController::class, 'getCommunitySinglePost']);
+    Route::post('/community/post-second', [CommunityController::class, 'makeAnotherCommunityPost']);
+    Route::get('/community/post/{community_id}/{page}', [CommunityController::class, 'getCommunityPost']);
+    Route::post('/community/action', [CommunityController::class, 'likeDislikeCommunityPostOrReply']);
+    Route::get('/community/home/{page}', [CommunityController::class, 'CommunityDashboard']);
+    Route::get('/community/post/delete/{post_id}', [CommunityController::class, 'DeleteMyCommunityPost']);
+    Route::get('/community/comment/delete/{comment_id}', [CommunityController::class, 'DeleteMyCommunityComment']);
+
+    Route::post('/community/post/reply', [CommunityController::class, 'replyCommunityPost']);
+    Route::post('/community/comment/reply', [CommunityController::class, 'commentReply']);
+    Route::get('/community/comment/reply/{comment_id}', [CommunityController::class, 'getPostCommentReply']);
+    Route::get('/community/rules', [CommunityController::class, 'viewCommunityRules']);
+    Route::post('/community/report/comment', [CommunityController::class, 'reportCommunityComment']);
+    Route::post('/community/report/post', [CommunityController::class, 'reportCommunityPost']);
+
+    Route::post('/volunteer', [VolunteerController::class, 'createVolunteer']);
+    Route::get('/volunteers', [VolunteerController::class, 'viewVolunteers']);
+    Route::post('/volunteer/photo', [VolunteerController::class, 'uploadPhoto']);
+    Route::post('/volunteer/action', [VolunteerController::class, 'activateDeactivateVolunteer']);
+    Route::post('/volunteer/appointment', [VolunteerController::class, 'volunteerSetAppointmentDates']);
+    Route::post('/volunteer/free-time', [VolunteerController::class, 'retrieveVolunteerAvailableTime']);
+    Route::get('/volunteer/delete/{id}', [VolunteerController::class, 'deleteAvailableTime']);
+    Route::post('/volunteer/booking', [VolunteerController::class, 'userMakeBooking']);
+    Route::get('/volunteer/booking', [VolunteerController::class, 'volunteerViewBooking']);
+    Route::get('/volunteer/booking-update/{status}/{id}', [VolunteerController::class, 'updateBookingStatus']);
+
+    Route::post('/volunteer/chat', [VolunteerController::class, 'createChat']);
+    Route::get('/volunteer/chats/{chat_id}', [VolunteerController::class, 'retrieveChats']);
+    Route::get('/volunteer/chat-list', [VolunteerController::class, 'retrieveChatList']);
+    
 });
 
 
@@ -202,6 +226,7 @@ Route::post('/notifications', [NotificationsController::class, 'store']);
 
 Route::get('/countries', [CountriesController::class, 'getCountries']);
 
+Route::get('/trust-me', [UserController::class, 'getCsrfToken']);
 
 
 
@@ -217,6 +242,7 @@ Route::get('/version', [UserController::class, 'checkVersion']);
 
 Route::post('/users/password/forget', [UserController::class, 'forgetPassword']);
 Route::post('/users/password/reset', [UserController::class, 'changePassword']);
+
 
 
 Route::post('/show', [DistressMessageController::class, 'testing']);

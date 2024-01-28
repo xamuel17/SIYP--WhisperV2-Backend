@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Emergency;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,17 +24,17 @@ class EmergencyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function getAssignedNumber($id)
+    public function getAssignedNumber()
     {
-        //
+
         $conditions = array(
-            'user_id' => $id,
+            'user_id' => auth()->user()->id,
             'assigned' => '1'
         );
         $phoneNo = DB::table('emergencies')->where($conditions)->value('phone_no');
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['phone_no'] = $phoneNo;
+        $response['data'] = $phoneNo;
         return response()->json($response, 200);
     }
 
@@ -46,14 +47,9 @@ class EmergencyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function getAllNumbers($id)
+    public function getAllNumbers()
     {
-        //
-        $conditions = array(
-            'user_id' => $id,
-            'assigned' => '1'
-        );
-        $phoneNo = DB::table('emergencies')->where('user_id', $id)->get();
+        $phoneNo = DB::table('emergencies')->where(['user_id'=> auth()->user()->id])->get();
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
         $response['data'] = $phoneNo;
@@ -68,9 +64,9 @@ class EmergencyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function deleteNumber($id)
+    public function deleteNumber(Request $request)
     {
-        $resp = Emergency::findOrfail($id);
+        $resp = Emergency::where(["user_id" => auth()->user()->id , "phone_no" => $request->phone_no])->first();
         if ($resp) {
             $resp->delete();
             $response['responseMessage'] = 'success';
@@ -95,18 +91,12 @@ class EmergencyController extends Controller
      */
     public function assignNumber(Request $request)
     {
-
         //check of phonenumber is assigned by user
-
-        $userId = $request->user_id;
-         DB::table('emergencies')->where('user_id', $userId)->update(array('assigned' => 0));
-
+         DB::table('emergencies')->where('user_id', auth()->user->id)->update(array('assigned' => 0));
         $id = $request->id;
-       
         $sel = DB::table('emergencies')->where('id', $id)->update(array('assigned' => 1));
-        
         if ($sel) {
-            $response['responseMessage'] = 'saved';
+            $response['responseMessage'] = 'success';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         } else {
@@ -122,20 +112,49 @@ class EmergencyController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function addNumber(Request $request)
     {
-        //
+
+        $contactCount = Emergency::where([ "user_id" =>auth()->user()->id])->count();
+        if ($contactCount >= 4) {
+            $response['responseMessage'] = 'You are limited to adding a maximum of four emergency contact numbers.';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+
+
+        $contact = Emergency::where(["phone_no"=> $request->phone_no, "user_id" =>auth()->user()->id])->get();
+        if($contact->count() > 0){
+            $response['responseMessage'] = 'Contact already exists';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+
+
+
+        if($request->fullname == null || $request->phone_no == null){
+            $response['responseMessage'] = 'Invalid Contact Details';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
 
         $em = Emergency::create([
-            'user_id' => $request->user_id,
+            'user_id' => auth()->user()->id,
             'fullname' => $request->fullname,
             'phone_no' => $request->phone_no,
             'assigned' => '0',
         ]);
 
-        $response['responseMessage'] = 'saved';
-        $response['responseCode'] = 00;
-        return response()->json($response, 200);
+        if($em){
+            $response['responseMessage'] = 'success';
+            $response['responseCode'] = 00;
+            return response()->json($response, 200);
+        }else{
+            $response['responseMessage'] = 'failed';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+
     }
 
     /**

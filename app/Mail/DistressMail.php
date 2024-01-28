@@ -28,6 +28,6 @@ class DistressMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Distress Alert Mail Sent To Guardians from Whisper App')->view('emails.DistressMailConfirmation');
+        return $this->subject('Distress Alert Mail Sent To Guardians from SIYP App')->view('emails.DistressMailConfirmation');
     }
 }

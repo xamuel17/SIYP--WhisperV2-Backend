@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DistressMessage extends Model
 {
-    use SoftDeletes;
+   // use SoftDeletes;
 
     use HasFactory;
     protected $guarded = [];
