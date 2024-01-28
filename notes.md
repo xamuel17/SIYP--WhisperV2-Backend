@@ -14,3 +14,5 @@ GitHub Personal Access Token - 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
 
 
  cd home/u644794495/domains/whispertohumanity.com/public_html/siyp-backend
+
+cd domains/whispertohumanity.org/public_html/siyp-backend
