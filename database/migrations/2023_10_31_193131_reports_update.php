@@ -14,7 +14,7 @@ class ReportsUpdate extends Migration
     public function up()
     {
         Schema::table('reports', function (Blueprint $table) {
-            $table->string('comment_id')->after('post_id')->nullable();
+          //  $table->string('comment_id')->after('post_id')->nullable();
         });
     }
 
