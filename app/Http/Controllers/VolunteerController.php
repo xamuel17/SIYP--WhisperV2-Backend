@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ChatResource;
 use App\Http\Resources\ChatListResource;
+use App\Http\Resources\ChatListVolunteerResource;
 use App\Http\Resources\VolunteerResource;
 use App\Models\Chat;
 use App\Models\Volunteer;
@@ -124,6 +125,31 @@ class VolunteerController extends Controller
            }
     }
 
+
+    public function volunteerAvailableDays($id)
+    {
+        $response['responseMessage'] = "success";
+        $response['responseCode'] = 00;
+        $response['data'] = VoluteerAvailableDays::where('volunteer_id', $id)->get();
+        return response()->json($response, 200);
+    }
+
+    public function volunteerDeleteAvailableDays($id){
+
+        $volunteer = VoluteerAvailableDays::where([
+            'volunteer_id' => auth()->user()->id,
+            'id' => $id
+        ])->delete();
+        if(isset( $volunteer )){
+            $response['responseMessage'] = 'Available time has been removed';
+            $response['responseCode'] = 00;
+            return response()->json($response, 200);
+           }else{
+            $response['responseMessage'] = 'Ohh Snap! Something went wrong';
+            $response['responseCode'] = 1001;
+            return response()->json($response, 200);
+           }
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -135,8 +161,7 @@ class VolunteerController extends Controller
 
         $volunteerId = Volunteer::where('user_id', auth()->user()->id)->first()->id;
         $volunteer = VoluteerAvailableDays::create([
-            'volunteer_id' => $volunteerId,
-            'user_id'=>auth()->user()->id,
+            'volunteer_id'=>auth()->user()->id,
             'day_of_week' => $request->day_of_week,
             'date' => $request->date,
             'start_time' => $request->start_time,
@@ -201,6 +226,11 @@ class VolunteerController extends Controller
 
 
     public function userMakeBooking(Request $request){
+        if( $request->volunteer_id === auth()->user()->id){
+            $response['responseMessage'] = 'You cannot book yourself!';
+            $response['responseCode'] = 1001;
+            return response()->json($response, 200);
+        }
         $volunteer= VoluteerAppointment::create([
             'user_id' => auth()->user()->id,
             'volunteer_id' => $request->volunteer_id,
@@ -214,7 +244,7 @@ class VolunteerController extends Controller
             return response()->json($response, 200);
         }else{
             $response['responseMessage'] = 'Appointment booking failed';
-            $response['responseCode'] = -1001;
+            $response['responseCode'] = 1001;
             return response()->json($response, 200);
         }
     }
@@ -228,13 +258,35 @@ class VolunteerController extends Controller
 
 
     public function updateBookingStatus($status, $id){
+
+        $booking = VoluteerAppointment::where('volunteer_id', auth()->user()->id)
+    ->whereNotIn('status', ['cancelled', 'closed', 'completed', 'accepted'])
+    ->where('id', $id)
+    ->first();
+
         $volunteer = VoluteerAppointment::where(['volunteer_id' => auth()->user()->id, 'id' =>$id ])->update(['status' => $status]);
-        if(isset($volunteer)){
+
+        if(isset($booking)){
+
+            if($status == 'accepted'){
+
+                if(Chat::where(['user_id'=> $booking->user_id, 'volunteer_id' => auth()->user()->id])->exists()){
+                }else{
+                Chat::Create([
+                    'user_id' => $booking->user_id,
+                    'volunteer_id' => auth()->user()->id,
+                    'chat_id' => (string) Str::uuid(),
+                    'started' => true,
+                    'appointment_id' => $booking->id,
+                    'text' =>Crypt::encrypt("Chat Appointment Booking for $booking->appointment_date  $booking->appointment_time  has been accepted!")
+               ]);
+            }
+            }
             $response['responseMessage'] = 'Appointment booking status has been updated';
             $response['responseCode'] = 00;
             return response()->json($response, 200);
         }else{
-            $response['responseMessage'] = 'Appointment booking status failed to update';
+            $response['responseMessage'] = "You cant update booking status to  $status ";
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
         }
@@ -246,7 +298,7 @@ class VolunteerController extends Controller
         //check user role
         $chatList= null;
         if(Volunteer::where('user_id', auth()->user()->id)->exists()){
-           $chatList= ChatListResource::collection(Chat::where(['volunteer_id' => auth()->user()->id,  'started' => true])->get());
+           $chatList= ChatListVolunteerResource::collection(Chat::where(['volunteer_id' => auth()->user()->id,  'started' => true])->get());
         }else{
             $chatList= ChatListResource::collection(Chat::where(['user_id' => auth()->user()->id,  'started' => true])->get());
         }
@@ -266,7 +318,7 @@ class VolunteerController extends Controller
     }
 
 
- 
+
 public function createChat(Request $request)
 {
 
@@ -276,16 +328,16 @@ public function createChat(Request $request)
         'started' => 1,
     ])->first();
 
-    
+
     $chatId = $chat ? $chat->chat_id : null;
-    
+
     If($chatId == null){
         $chatId = (string) Str::uuid();
-       $Id=  Chat::Create([
+      Chat::Create([
             'user_id' => auth()->user()->id,
             'volunteer_id' => $request->volunteer_id,
             'chat_id' => $chatId,
-            'started' => true,  
+            'started' => true,
        ]);
     }
 
@@ -332,7 +384,7 @@ public function uploadChatImage(Request $request, $userId)
     $fileName = $userId . '-' . time() . '.' . $extension;
     $path = $request->file('photo')->move(public_path('users-chat-images'), $fileName);
     $photoURL = url('/users-chat-images/' . $fileName);
-    
+
     return $fileName;
 }
 

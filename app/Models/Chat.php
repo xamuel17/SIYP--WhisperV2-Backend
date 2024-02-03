@@ -20,7 +20,8 @@ class Chat extends Model
         'sent',
         'received',
         'started',
-        'chat_id'
+        'chat_id',
+        'appointment_id'
 
     ];
 }

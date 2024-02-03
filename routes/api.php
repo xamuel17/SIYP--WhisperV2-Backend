@@ -204,8 +204,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/volunteer/photo', [VolunteerController::class, 'uploadPhoto']);
     Route::post('/volunteer/action', [VolunteerController::class, 'activateDeactivateVolunteer']);
     Route::post('/volunteer/appointment', [VolunteerController::class, 'volunteerSetAppointmentDates']);
+    Route::get('/volunteer/available-days/{id}', [VolunteerController::class, 'volunteerAvailableDays']);
+    Route::delete('/volunteer/available-days/{id}', [VolunteerController::class, 'volunteerDeleteAvailableDays']);
+
+
     Route::post('/volunteer/free-time', [VolunteerController::class, 'retrieveVolunteerAvailableTime']);
-    Route::get('/volunteer/delete/{id}', [VolunteerController::class, 'deleteAvailableTime']);
+  //  Route::get('/volunteer/delete/{id}', [VolunteerController::class, 'deleteAvailableTime']);
     Route::post('/volunteer/booking', [VolunteerController::class, 'userMakeBooking']);
     Route::get('/volunteer/booking', [VolunteerController::class, 'volunteerViewBooking']);
     Route::get('/volunteer/booking-update/{status}/{id}', [VolunteerController::class, 'updateBookingStatus']);
@@ -213,7 +217,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/volunteer/chat', [VolunteerController::class, 'createChat']);
     Route::get('/volunteer/chats/{chat_id}', [VolunteerController::class, 'retrieveChats']);
     Route::get('/volunteer/chat-list', [VolunteerController::class, 'retrieveChatList']);
-    
+
 });
 
 
