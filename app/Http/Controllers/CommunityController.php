@@ -45,7 +45,7 @@ class CommunityController extends Controller
             return response()->json($response, 200);
         }
 
-        if (Community::where(['title' => $request->title])->count() > 0) {
+        if (Community::where(['name' => $request->title])->count() > 0) {
             $response['responseMessage'] = "This community name has already been taken.";
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
