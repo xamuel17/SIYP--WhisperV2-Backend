@@ -16,3 +16,7 @@ j
  cd home/u644794495/domains/whispertohumanity.com/public_html/siyp-backend
 ssh -p 65002 u644794495@191.96.63.124
 cd domains/whispertohumanity.org/public_html/siyp-backend
+
+
+git mv public/users-community-videos/video_650589d0adb8a.mp4 public/users-community-videos/
+
