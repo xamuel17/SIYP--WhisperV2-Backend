@@ -45,6 +45,12 @@ class CommunityController extends Controller
             return response()->json($response, 200);
         }
 
+        if (Community::where(['title' => $request->title])->count() > 0) {
+            $response['responseMessage'] = "This community name has already been taken.";
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+
+        }
         $secretKey = null;
         if ($request->privacy == 1) {
 
@@ -60,13 +66,16 @@ class CommunityController extends Controller
             "secret_key" => $secretKey,
         ]);
 
+        // Retrieve the inserted data from the database
+        $community = Community::where(['id' => $community->id, 'user_id' => auth()->user()->id])->first(); // Assuming you have a "user" relation on your Community model
+
         //upload photo
-        $title = strtok($request->title, ' ');
-        if(isset($request->photo)){
+
+        if (isset($request->photo)) {
+            $title = strtok($request->title, ' ');
             $photo = $this->uploadCommunityImage($request, $community->id, $title);
             Community::where(['id' => $community->id])->update(['photo' => $photo]);
         }
-
 
         CommunityMember::create([
             'user_id' => auth()->user()->id,
@@ -76,6 +85,7 @@ class CommunityController extends Controller
         if ($community) {
             $response['responseMessage'] = 'Community Creation Successful';
             $response['responseCode'] = 00;
+            $response['data'] = $community;
             return response()->json($response, 200);
         } else {
             $response['responseMessage'] = 'Community Creation Failed';
