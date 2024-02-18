@@ -37,6 +37,12 @@ class CommunityController extends Controller
             return response()->json($response, 200);
         }
 
+        if (Community::where(['title' => $request->title])->count() > 0) {
+            $response['responseMessage'] = "This community name has already been taken.";
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+
+        }
         $secretKey = null;
         if ($request->privacy == 1) {
 
@@ -52,13 +58,16 @@ class CommunityController extends Controller
             "secret_key" => $secretKey,
         ]);
 
+        // Retrieve the inserted data from the database
+        $community = Community::where(['id' => $community->id, 'user_id' => auth()->user()->id])->first(); // Assuming you have a "user" relation on your Community model
+
         //upload photo
-        $title = strtok($request->title, ' ');
-        if(isset($request->photo)){
+
+        if (isset($request->photo)) {
+            $title = strtok($request->title, ' ');
             $photo = $this->uploadCommunityImage($request, $community->id, $title);
             Community::where(['id' => $community->id])->update(['photo' => $photo]);
         }
-
 
         CommunityMember::create([
             'user_id' => auth()->user()->id,
@@ -68,6 +77,7 @@ class CommunityController extends Controller
         if ($community) {
             $response['responseMessage'] = 'Community Creation Successful';
             $response['responseCode'] = 00;
+            $response['data'] = $community;
             return response()->json($response, 200);
         } else {
             $response['responseMessage'] = 'Community Creation Failed';
@@ -118,14 +128,12 @@ class CommunityController extends Controller
         return response()->json($response, 200);
     }
 
-
-
     public function getFollowingCommunity()
     {
 
         $communities = CommunityMember::leftJoin('communities', 'community_members.community_id', '=', 'communities.id')
-        ->select('communities.*')
-        ->get();
+            ->select('communities.*')
+            ->get();
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
@@ -185,8 +193,8 @@ class CommunityController extends Controller
                 return response()->json($response, 200);
             } else {
 
-                if(!empty($_community->secretKey)){
-                    if($request->secretKey != $_community->secretKey){
+                if (!empty($_community->secretKey)) {
+                    if ($request->secretKey != $_community->secretKey) {
                         $response['responseMessage'] = 'Incorrect secret key, you can not join ' . $communityName . ' community!';
                         $response['responseCode'] = -1001;
                         $response['data'] = $validator->errors();
@@ -205,8 +213,8 @@ class CommunityController extends Controller
 
     }
 
-
-    public function getCommunityPost($community_id){
+    public function getCommunityPost($community_id)
+    {
         //check if user is blocked
         if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $community_id, 'status' => 'blocked'])->count() != 0) {
             $response['responseMessage'] = 'You have been blocked from accessing this community';
@@ -216,10 +224,9 @@ class CommunityController extends Controller
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
-        $response['data'] = CommunityHasPostResource::collection(CommunityHasPosts::where(['community_id' =>  $community_id, 'status' => '1'])->get());
+        $response['data'] = CommunityHasPostResource::collection(CommunityHasPosts::where(['community_id' => $community_id, 'status' => '1'])->get());
         return response()->json($response, 200);
     }
-
 
     public function CommunityDashboard($page)
     {
@@ -240,107 +247,107 @@ class CommunityController extends Controller
         return response()->json($response, 200);
     }
 
+    public function likeDislikePost($selectedId, $userId, $state, $communityId)
+    {
 
-
-
-    public function likeDislikePost($selectedId, $userId , $state, $communityId ){
-
-      if($state == "likePost" || $state == "dislikePost" ){
-        $post = CommunityPostReplyLike::where([
-            'type' => 'post',
-            'user_id' => $userId,
-            'selected_id' => $selectedId,
-            'community_id' => $communityId
-        ])->first();
-           if(isset($post)){
-            //delete
-            if($state == "likePost" && $post->action == 0){
-                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
-            }
-             if($state == "dislikePost" && $post->action == 1) {
-
-                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
-            }
-
-           }else{
-            //create
-            CommunityPostReplyLike::create([
+        if ($state == "likePost" || $state == "dislikePost") {
+            $post = CommunityPostReplyLike::where([
                 'type' => 'post',
                 'user_id' => $userId,
                 'selected_id' => $selectedId,
-                'action' => ($state == "likePost") ? true: false,
-                'community_id' => $communityId
-            ]);
-           }
-      }else if ($state == "dislikeReply" || $state === "likeReply"){
-        $post = CommunityPostReplyLike::where([
-            'type' => 'reply',
-            'user_id' => $userId,
-            'selected_id' => $selectedId,
-            'community_id' => $communityId
-        ])->first();
-           if(isset($post->id)){
+                'community_id' => $communityId,
+            ])->first();
+            if (isset($post)) {
+                //delete
+                if ($state == "likePost" && $post->action == 0) {
+                    CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
+                }
+                if ($state == "dislikePost" && $post->action == 1) {
 
-            if($state == "likeReply" && $post->action == 0){
-                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
-            }
+                    CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
+                }
 
-             if($state == "dislikeReply" && $post->action == 1) {
-                CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
+            } else {
+                //create
+                CommunityPostReplyLike::create([
+                    'type' => 'post',
+                    'user_id' => $userId,
+                    'selected_id' => $selectedId,
+                    'action' => ($state == "likePost") ? true : false,
+                    'community_id' => $communityId,
+                ]);
             }
-           }else{
-            //create
-            CommunityPostReplyLike::create([
+        } else if ($state == "dislikeReply" || $state === "likeReply") {
+            $post = CommunityPostReplyLike::where([
                 'type' => 'reply',
                 'user_id' => $userId,
                 'selected_id' => $selectedId,
-                'action' => ($state == "likeReply") ? true: false,
-                'community_id' => $communityId
-            ]);
-           }
-      }
-    }
-    public function likeDislikeCommunityPostOrReply(Request $request){
+                'community_id' => $communityId,
+            ])->first();
+            if (isset($post->id)) {
 
-        $post= null;
+                if ($state == "likeReply" && $post->action == 0) {
+                    CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => true]);
+                }
+
+                if ($state == "dislikeReply" && $post->action == 1) {
+                    CommunityPostReplyLike::where(['id' => $post->id])->update(['action' => false]);
+                }
+            } else {
+                //create
+                CommunityPostReplyLike::create([
+                    'type' => 'reply',
+                    'user_id' => $userId,
+                    'selected_id' => $selectedId,
+                    'action' => ($state == "likeReply") ? true : false,
+                    'community_id' => $communityId,
+                ]);
+            }
+        }
+    }
+    public function likeDislikeCommunityPostOrReply(Request $request)
+    {
+
+        $post = null;
         if (isset($request->action) && ($request->action == "likePost" || $request->action == "dislikePost")) {
-            $post = CommunityHasPosts::where('id' , $request->communityId)->first();
-            if(empty($post)){
+            $post = CommunityHasPosts::where('id', $request->communityId)->first();
+            if (empty($post)) {
                 $response['responseMessage'] = 'Community Post doesn\'t exist';
                 $response['responseCode'] = -1001;
                 return response()->json($response, 200);
             }
         }
 
-        $state= null;
+        $state = null;
         switch ($request->action) {
             case "likePost":
-                $status ="Liked Post";
-                $this->likeDislikePost($request->selectedId, auth()->user()->id, "likePost",$request->communityId);
+                $status = "Liked Post";
+                $this->likeDislikePost($request->selectedId, auth()->user()->id, "likePost", $request->communityId);
                 break;
             case "dislikePost":
-                $status ="Disliked Post";
-                $this->likeDislikePost($request->selectedId, auth()->user()->id, "dislikePost",$request->communityId);
+                $status = "Disliked Post";
+                $this->likeDislikePost($request->selectedId, auth()->user()->id, "dislikePost", $request->communityId);
                 break;
             case "dislikeReply":
-                $status ="Disliked Reply";
-                $this->likeDislikePost($request->selectedId, auth()->user()->id, "dislikeReply",$request->communityId);
+                $status = "Disliked Reply";
+                $this->likeDislikePost($request->selectedId, auth()->user()->id, "dislikeReply", $request->communityId);
                 break;
             case "likeReply":
-                $status ="Liked Reply";
-                $this->likeDislikePost($request->selectedId, auth()->user()->id, "likeReply",$request->communityId);
+                $status = "Liked Reply";
+                $this->likeDislikePost($request->selectedId, auth()->user()->id, "likeReply", $request->communityId);
                 break;
             default:
-            $response['responseMessage'] = 'Ohh Snap! something went wrong.';
-            $response['responseCode'] = -1001;
-            return response()->json($response, 200);
+                $response['responseMessage'] = 'Ohh Snap! something went wrong.';
+                $response['responseCode'] = -1001;
+                return response()->json($response, 200);
         }
         $response['responseMessage'] = $status;
         $response['responseCode'] = 00;
         return response()->json($response, 200);
     }
 
-    public function replyCommunityPost(Request $request){
+    public function replyCommunityPost(Request $request)
+    {
         //check if user is blocked
         if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $request->community_id, 'status' => 'blocked'])->count() != 0) {
             $response['responseMessage'] = 'You have been blocked from accessing this community';
@@ -349,57 +356,55 @@ class CommunityController extends Controller
         }
 
         //check if community post exists
-        if(CommunityHasPosts::where(['id'=> $request->post_id])->count() != 0){
+        if (CommunityHasPosts::where(['id' => $request->post_id])->count() != 0) {
             $response['responseMessage'] = 'Community doesn\'t exist';
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
         }
-        $comment =CommunityHasComments::create([
+        $comment = CommunityHasComments::create([
             'user_id' => auth()->user()->id,
-            'community_post_id' =>$request->community_post_id,
-            'content' =>$request->content
+            'community_post_id' => $request->community_post_id,
+            'content' => $request->content,
         ]);
         //type= comment
         if (!is_null($request->photos) && !empty($request->photos)) {
             $this->uploadPhoto($request, $comment->id);
         }
 
-        if(isset($comment)){
+        if (isset($comment)) {
             $response['responseMessage'] = 'The post reply successful.';
             $response['responseCode'] = 200;
             return response()->json($response, 200);
-        }else{
+        } else {
             $response['responseMessage'] = 'The post reply successfully.';
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
         }
     }
 
-
-
-
-    public function replyReplies(Request $request){
-                //check if user is blocked
-            if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $request->community_id, 'status' => 'blocked'])->count() != 0) {
-                $response['responseMessage'] = 'You have been blocked from accessing this community';
-                $response['responseCode'] = -1001;
-                return response()->json($response, 200);
-            }
-        $comment =CommunityCommentHasReply::create([
+    public function replyReplies(Request $request)
+    {
+        //check if user is blocked
+        if (CommunityMember::where(['user_id' => auth()->user()->id, 'community_id' => $request->community_id, 'status' => 'blocked'])->count() != 0) {
+            $response['responseMessage'] = 'You have been blocked from accessing this community';
+            $response['responseCode'] = -1001;
+            return response()->json($response, 200);
+        }
+        $comment = CommunityCommentHasReply::create([
             'user_id' => auth()->user()->id,
-            'community_comment_id' =>$request->community_comment_id,
-            'content' =>$request->content
+            'community_comment_id' => $request->community_comment_id,
+            'content' => $request->content,
         ]);
         //type= reply
         if (!is_null($request->photos) && !empty($request->photos)) {
             $this->uploadPhoto($request, $comment->id);
         }
 
-        if(isset($comment)){
+        if (isset($comment)) {
             $response['responseMessage'] = 'The comment reply successful.';
             $response['responseCode'] = 200;
             return response()->json($response, 200);
-        }else{
+        } else {
             $response['responseMessage'] = 'The comment reply successfully.';
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
@@ -417,7 +422,7 @@ class CommunityController extends Controller
         $rules = array(
             'community_id' => 'required|exists:communities,id',
             'content' => 'required',
-            'type' => 'required'
+            'type' => 'required',
         );
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -434,10 +439,10 @@ class CommunityController extends Controller
             return response()->json($response, 200);
         }
 
-       $post= CommunityHasPosts::create([
+        $post = CommunityHasPosts::create([
             'content' => $request->content,
             'user_id' => auth()->user()->id,
-            'community_id' => $request->community_id
+            'community_id' => $request->community_id,
         ]);
 
         if (!is_null($request->photos) && !empty($request->photos)) {
@@ -445,14 +450,14 @@ class CommunityController extends Controller
         }
 
         if (!is_null($request->video) && !empty($request->video)) {
-           $video =  $this->uploadVideo($request, $post->id);
+            $video = $this->uploadVideo($request, $post->id);
         }
 
-        if(isset($post)){
+        if (isset($post)) {
             $response['responseMessage'] = 'The post creation was successful.';
             $response['responseCode'] = 200;
             return response()->json($response, 200);
-        }else{
+        } else {
             $response['responseMessage'] = 'The post has been successfully created.';
             $response['responseCode'] = -1001;
             return response()->json($response, 200);
@@ -460,7 +465,7 @@ class CommunityController extends Controller
 
     }
 
-    public function uploadCommunityImage(Request $request,$communityId,$communityName  )
+    public function uploadCommunityImage(Request $request, $communityId, $communityName)
     {
 
         $input = $request->all();
@@ -481,31 +486,30 @@ class CommunityController extends Controller
         return $fileName;
     }
 
+    public function uploadVideo(Request $request, $postId)
+    {
+        // Validate the incoming request data
+        // $request->validate([
+        //     'video' => 'required|mimes:mp4,mov,avi,wmv|max:102400', // Adjust validation rules as needed
+        // ]);
 
-    public function uploadVideo(Request $request , $postId)
-{
-    // Validate the incoming request data
-    // $request->validate([
-    //     'video' => 'required|mimes:mp4,mov,avi,wmv|max:102400', // Adjust validation rules as needed
-    // ]);
+        // Store the uploaded video in a directory, generate a unique file name, and save it
+        $fileName = uniqid('video_') . '.' . $request->file('video')->extension();
 
-    // Store the uploaded video in a directory, generate a unique file name, and save it
-    $fileName = uniqid('video_') . '.' . $request->file('video')->extension();
+        $path = $request->file('video')->move(public_path("/users-community-videos"), $fileName);
 
-    $path = $request->file('video')->move(public_path("/users-community-videos"), $fileName);
+        $data = [
+            'videos' => $fileName,
+        ];
 
-    $data = [
-        'videos' => $fileName,
-    ];
+        if (CommunityHasPosts::where('id', $postId)->update($data)) {
 
-    if (CommunityHasPosts::where('id', $postId)->update($data)) {
-
-        $response['responseMessage'] = 'Photos uploaded successfully';
-        $response['responseCode'] = 00;
-        return response()->json($response, 200);
+            $response['responseMessage'] = 'Photos uploaded successfully';
+            $response['responseCode'] = 00;
+            return response()->json($response, 200);
+        }
+        return $fileName;
     }
-    return $fileName;
-}
 
     public function uploadPhoto(Request $request, $postId)
     {
@@ -549,37 +553,7 @@ class CommunityController extends Controller
                 return response()->json($response, 200);
             }
         }
-         if ($request->type == "comment") {
-
-                // Validate the incoming request data
-                $request->validate([
-                    'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
-                ]);
-
-                $uploadedPhotos = [];
-
-                foreach ($request->file('photos') as $photo) {
-
-                    // Store each photo in a directory, generate unique file names, and save them
-                    $fileName = uniqid('photo_') . '.' . $photo->extension();
-
-                    // Move and save each photo to the desired directory
-                    $photo->move(public_path('/users-community-images'), $fileName);
-                    $uploadedPhotos[] = $fileName;
-                }
-
-
-                $data = [
-                    'photos' => $uploadedPhotos,
-                ];
-
-                CommunityHasComments::where('id', $postId)->update($data);
-
-
-
-        }
-
-         if ($request->type == "reply") {
+        if ($request->type == "comment") {
 
             // Validate the incoming request data
             $request->validate([
@@ -598,12 +572,38 @@ class CommunityController extends Controller
                 $uploadedPhotos[] = $fileName;
             }
 
+            $data = [
+                'photos' => $uploadedPhotos,
+            ];
+
+            CommunityHasComments::where('id', $postId)->update($data);
+
+        }
+
+        if ($request->type == "reply") {
+
+            // Validate the incoming request data
+            $request->validate([
+                'photos.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Adjust validation rules as needed
+            ]);
+
+            $uploadedPhotos = [];
+
+            foreach ($request->file('photos') as $photo) {
+
+                // Store each photo in a directory, generate unique file names, and save them
+                $fileName = uniqid('photo_') . '.' . $photo->extension();
+
+                // Move and save each photo to the desired directory
+                $photo->move(public_path('/users-community-images'), $fileName);
+                $uploadedPhotos[] = $fileName;
+            }
 
             $data = [
                 'photos' => $uploadedPhotos,
             ];
             CommunityCommentHasReply::where('id', $postId)->update($data);
-    }
+        }
 
     }
 }
