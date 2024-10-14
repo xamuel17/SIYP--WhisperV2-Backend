@@ -9,6 +9,7 @@ use App\Models\VoluteerAppointment;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class ChatListResource extends JsonResource
 {
@@ -26,7 +27,7 @@ class ChatListResource extends JsonResource
 
         return [
             'id' => $this->_id,
-            'text' => $chat ? Crypt::decrypt($chat->text) : null,
+            'text' => $this->getDecryptedText($chat),
             'created_at' => $formattedDate,
             'user' => $user,
             'chat_id' => $this->chat_id,
@@ -114,5 +115,20 @@ class ChatListResource extends JsonResource
     private function getFormattedDate()
     {
         return Carbon::parse($this->created_at)->diffForHumans();
+    }
+
+    private function getDecryptedText($chat)
+    {
+        if (!$chat) {
+            return null;
+        }
+
+        try {
+            return Crypt::decrypt($chat->text);
+        } catch (DecryptException $e) {
+            // Log the error if needed
+            // \Log::error('Failed to decrypt chat text: ' . $e->getMessage());
+            return '[Encrypted]'; // or return a placeholder text
+        }
     }
 }
