@@ -12,95 +12,107 @@ use Illuminate\Support\Facades\Crypt;
 
 class ChatListResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
     public function toArray($request)
     {
-        $role = null;
-        if ($this->user_id != null) {
-            $role = "user";
-            // $user = User::where('id', $this->volunteer_id)->first([
-            //     'id as _id',
-            //     'username as name',
-            //     \DB::raw("COALESCE(profile_pic, '" . env("APP_URL") . "/users-images/avatar.JPG') as avatar")
-            // ]);
-            $user = Volunteer::where('user_id', $this->volunteer_id)->first([
-                'user_id as volunteer_id', 'role', 'status', 'email', 'phone', 'username',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
-            ]);
+        $role = $this->user_id != null ? "user" : "volunteer";
 
-        } else {
-            $role = "volunteer";
-            $user = User::where('id', $this->user_id)->first([
-                'id as _id',
-                'username as name',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
-            ]);
-        }
+        $user = $this->getUserInfo($role);
+        $owner = $this->getOwnerInfo();
+        $appointment = $this->getAppointmentInfo();
+        $resp = $this->getAccessInfo($appointment);
 
-        $owner = User::where('id', $this->user_id)->first([
-            'id as _id',
-            'username as name',
-            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
-        ]);
+        $chat = $this->getMostRecentChat();
+        $formattedDate = $this->getFormattedDate();
 
-        $appointment = VoluteerAppointment::where([
-            'id' =>$this->appointment_id,
-            'status' => 'accepted'
-        ])->first(['appointment_date','appointment_time','notes']);
-
-
-        $resp = [];
-            // Check if appointment date is in the future
-            if ($appointment->appointment_date < Carbon::now()->toDateString()) {
-                // Your code if the appointment time is less than now
-                if (Carbon::parse($appointment->appointment_time) < Carbon::now()) {
-                    $resp = [
-                        'access' => false,
-                        'message' => 'Uh-oh, It\'s past your appointment time'
-                    ];
-                }
-                 else {
-                    $resp = [
-                        'access' => true,
-                        'message' => 'Access granted'
-                    ];
-                }
-            } else {
-                $resp = [
-                    'access' => false,
-                    'message' => 'Today is not your appointment date'
-                ];
-            }
-
-
-
-
-        // Replace $date with your actual date
-        $date = Carbon::parse($this->created_at);
-
-        // Format the date in a human-readable way
-        $formattedDate = $date->diffForHumans();
-
-// Fetch most recent text and time
-        $chat = Chat::where(['chat_id' => $this->chat_id])
-            ->latest('created_at')
-            ->select('text', 'created_at')
-            ->first();
         return [
             'id' => $this->_id,
-            'text' => Crypt::decrypt($chat->text),
+            'text' => $chat ? Crypt::decrypt($chat->text) : null,
             'created_at' => $formattedDate,
             'user' => $user,
             'chat_id' => $this->chat_id,
             'role' => $role,
             'owner' => $owner,
             'appointment' => $appointment,
-            'access' =>$resp
+            'access' => $resp
         ];
+    }
+
+    private function getUserInfo($role)
+    {
+        if ($role === "user") {
+            return Volunteer::where('user_id', $this->volunteer_id)->first([
+                'user_id as volunteer_id', 'role', 'status', 'email', 'phone', 'username',
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+            ]);
+        } else {
+            return User::where('id', $this->user_id)->first([
+                'id as _id',
+                'username as name',
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+            ]);
+        }
+    }
+
+    private function getOwnerInfo()
+    {
+        return User::where('id', $this->user_id)->first([
+            'id as _id',
+            'username as name',
+            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+        ]);
+    }
+
+    private function getAppointmentInfo()
+    {
+        return VoluteerAppointment::where([
+            'id' => $this->appointment_id,
+            'status' => 'accepted'
+        ])->first(['appointment_date', 'appointment_time', 'notes']);
+    }
+
+    private function getAccessInfo($appointment)
+    {
+        if (!$appointment) {
+            return [
+                'access' => false,
+                'message' => 'No appointment found'
+            ];
+        }
+
+        $now = Carbon::now();
+        $appointmentDate = Carbon::parse($appointment->appointment_date);
+        $appointmentTime = Carbon::parse($appointment->appointment_time);
+
+        if ($appointmentDate->isPast()) {
+            if ($appointmentTime->isPast()) {
+                return [
+                    'access' => false,
+                    'message' => 'Uh-oh, It\'s past your appointment time'
+                ];
+            } else {
+                return [
+                    'access' => true,
+                    'message' => 'Access granted'
+                ];
+            }
+        } else {
+            return [
+                'access' => false,
+                'message' => 'Today is not your appointment date'
+            ];
+        }
+    }
+
+    private function getMostRecentChat()
+    {
+        return Chat::where(['chat_id' => $this->chat_id])
+            ->latest('created_at')
+            ->select('text', 'created_at')
+            ->first();
+    }
+
+    private function getFormattedDate()
+    {
+        return Carbon::parse($this->created_at)->diffForHumans();
     }
 }
