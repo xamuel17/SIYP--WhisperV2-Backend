@@ -41,7 +41,7 @@ try {
     $_membersPhotos = User::whereIn('id', $membersUserIds)->pluck('profile_pic');
     $membersCount = Util::numberFormatShort(CommunityMember::where(['community_id' => $this->id])->count());
     foreach ($_membersPhotos as $photo) {
-        $membersPhotos[] = $photo ? env("APP_URL") . "/users-images/" . $photo : env("APP_URL") . "/users-images/" . "avatar.JPG";
+        $membersPhotos[] = $photo ? env("APP_URL") . "/users-images/" . $photo : env("APP_URL") . "/users-images/" . "avatar.jpg";
     }
 } catch (\Throwable $th) {
     // Handle exceptions here

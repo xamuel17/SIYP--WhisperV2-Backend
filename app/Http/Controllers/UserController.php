@@ -807,7 +807,7 @@ class UserController extends Controller
         if ($DP != null) {
             return response()->download(env("APP_URL") . "/users-images/" . $pic, 'User Image');
         } else {
-            return response()->download(env("APP_URL") . "/users-images/avatar.JPG", 'User Image');
+            return response()->download(env("APP_URL") . "/users-images/avatar.jpg", 'User Image');
         }
     }
 

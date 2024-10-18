@@ -9,6 +9,7 @@ use App\Models\VoluteerAppointment;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class ChatListResource extends JsonResource
 {
@@ -26,7 +27,7 @@ class ChatListResource extends JsonResource
 
         return [
             'id' => $this->_id,
-            'text' => $chat ? Crypt::decrypt($chat->text) : null,
+            'text' => $this->getDecryptedText($chat),
             'created_at' => $formattedDate,
             'user' => $user,
             'chat_id' => $this->chat_id,
@@ -42,13 +43,13 @@ class ChatListResource extends JsonResource
         if ($role === "user") {
             return Volunteer::where('user_id', $this->volunteer_id)->first([
                 'user_id as volunteer_id', 'role', 'status', 'email', 'phone', 'username',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
             ]);
         } else {
             return User::where('id', $this->user_id)->first([
                 'id as _id',
                 'username as name',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
             ]);
         }
     }
@@ -58,7 +59,7 @@ class ChatListResource extends JsonResource
         return User::where('id', $this->user_id)->first([
             'id as _id',
             'username as name',
-            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
         ]);
     }
 
@@ -114,5 +115,20 @@ class ChatListResource extends JsonResource
     private function getFormattedDate()
     {
         return Carbon::parse($this->created_at)->diffForHumans();
+    }
+
+    private function getDecryptedText($chat)
+    {
+        if (!$chat) {
+            return null;
+        }
+
+        try {
+            return base64_decode($chat->text);
+        } catch (\Exception $e) {
+            // Log the error if needed
+            // \Log::error('Failed to decrypt chat text: ' . $e->getMessage());
+            return '[Encrypted]'; // or return a placeholder text
+        }
     }
 }

@@ -55,7 +55,7 @@ class CommunityHasPostResource extends JsonResource
         $comments = CommunityCommentResource::collection(CommunityHasComments::where('community_post_id', $this->id)->get());
 
         $user = User::where('id', $this->user_id)->first();
-        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
+        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.jpg";
 
 
         // Replace $date with your actual date
@@ -70,8 +70,8 @@ class CommunityHasPostResource extends JsonResource
             'id' =>$this->id,
             'community_id'=>$this->community_id,
             'user_photo'=>$user_photo,
-            'user_name'=> Str::limit($user->username, 8,'...'),
-            "user_firstname" => Str::limit($user->firstname, 6,'...'),
+            'user_name'=> Str::limit($user->username, 32,'...'),
+            "user_firstname" => Str::limit($user->firstname, 32,'...'),
             'user_id'=>$this->user_id,
             'title' => $this->name,
             'photo' =>$photoUrls,

@@ -23,14 +23,14 @@ class ChatResource extends JsonResource
             $user = User::where('id', $this->volunteer_id)->first([
                 'id as _id',
                 'username as name',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar")
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar")
             ]);
 
             }else{
                 $user = User::where('id', $this->user_id)->first([
                     'id as _id',
                     'username as name',
-                    \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar")
+                    \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar")
                 ]);
             }
             $image = null;
@@ -48,7 +48,7 @@ class ChatResource extends JsonResource
 
         return [
             '_id' => $this->_id,
-            'text' => Crypt::decrypt($this->text),
+            'text' => base64_decode($this->text),
             'image'=>$image,
             'sent'=>$this->sent,
             'received'=>$this->received,
