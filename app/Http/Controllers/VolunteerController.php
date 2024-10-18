@@ -366,17 +366,16 @@ class VolunteerController extends Controller
 
     private function successResponse($newChat)
     {
-        $chatData = ChatResource::collection(
-            Chat::where(['_id' => $newChat->_id, 'started' => null])
-                ->latest('created_at')
-                ->get()
-        );
+        $chat = Chat::where(['_id' => $newChat->_id, 'text' => $newChat->text])
+        ->latest('created_at')
+        ->first();
+
+    $chatData = new ChatResource($chat);
 
         return response()->json([
             'responseMessage' => 'success',
             'responseCode' => 0,
-            'message' => $chatData,
-            'data' => $chatData,
+            'message' => $chatData
         ], 200);
     }
 
