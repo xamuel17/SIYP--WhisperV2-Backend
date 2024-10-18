@@ -7,6 +7,7 @@ use App\Http\Resources\ChatListResource;
 use App\Http\Resources\ChatListVolunteerResource;
 use App\Http\Resources\VolunteerResource;
 use App\Models\Chat;
+use App\Models\User;
 use App\Models\Volunteer;
 use App\Models\VoluteerAppointment;
 use App\Models\VoluteerAvailableDays;
@@ -278,7 +279,7 @@ class VolunteerController extends Controller
                     'chat_id' => (string) Str::uuid(),
                     'started' => true,
                     'appointment_id' => $booking->id,
-                    'text' =>Crypt::encrypt("Chat Appointment Booking for $booking->appointment_date  $booking->appointment_time  has been accepted!")
+                    'text' =>base64_encode("Chat Appointment Booking for $booking->appointment_date  $booking->appointment_time  has been accepted!")
                ]);
             }
             }
@@ -319,59 +320,74 @@ class VolunteerController extends Controller
 
 
 
-public function createChat(Request $request)
-{
+    public function createChat(Request $request)
+    {
+        $userId = auth()->id();
+        $volunteerId = $request->volunteer_id;
 
-    $chat = Chat::where([
-        'user_id' => auth()->user()->id,
-        'volunteer_id' => $request->volunteer_id,
-        'started' => 1,
-    ])->first();
+        $chat = Chat::firstOrCreate(
+            [
+                'user_id' => $userId,
+                'volunteer_id' => $volunteerId,
+                'started' => true,
+            ],
+            [
+                'chat_id' => Str::uuid(),
+                'text' => $this->createGreetingMessage($volunteerId),
+            ]
+        );
 
+        $photo = $request->has('photo') ? $this->uploadChatImage($request, $userId) : null;
 
-    $chatId = $chat ? $chat->chat_id : null;
+        $newChat = Chat::create([
+            'text' => base64_encode($request->text),
+            'sent' => true,
+            'chat_id' => $chat->chat_id,
+            'image' => $photo,
+            $this->determineUserType($userId) => $userId,
+        ]);
 
-    If($chatId == null){
-        $chatId = (string) Str::uuid();
-      Chat::Create([
-            'user_id' => auth()->user()->id,
-            'volunteer_id' => $request->volunteer_id,
-            'chat_id' => $chatId,
-            'started' => true,
-       ]);
+        if ($newChat) {
+            return $this->successResponse($newChat);
+        }
+
+        return $this->failureResponse();
     }
 
-
-    $photo = null;
-
-    if ($request->has('photo')) {
-        $photo = $this->uploadChatImage($request, auth()->user()->id);
+    private function createGreetingMessage($volunteerId)
+    {
+        $volunteer = Volunteer::where('user_id', $volunteerId)->value('username');
+        return base64_encode("Greetings, {$volunteer}!");
     }
 
-    $requestData = [
-        'text' => Crypt::encrypt($request->text),
-        'sent' => true,
-        'chat_id' => $chatId,
-        'image' => $photo,
-       // 'volunteer_id' =>$request->volunteer_id
-    ];
-
-    if (Volunteer::where('user_id', auth()->user()->id)->exists()) {
-        $requestData['volunteer_id'] = auth()->user()->id;
-    } else {
-        $requestData['user_id'] = auth()->user()->id;
+    private function determineUserType($userId)
+    {
+        return Volunteer::where('user_id', $userId)->exists() ? 'volunteer_id' : 'user_id';
     }
 
-    if (Chat::create($requestData)) {
-        $response['responseMessage'] = 'success';
-        $response['responseCode'] = 00;
-        return response()->json($response, 200);
-    } else {
-        $response['responseMessage'] = 'failed';
-        $response['responseCode'] = -1001;
-        return response()->json($response, 200);
+    private function successResponse($newChat)
+    {
+        $chatData = ChatResource::collection(
+            Chat::where(['_id' => $newChat->_id, 'started' => null])
+                ->latest('created_at')
+                ->get()
+        );
+
+        return response()->json([
+            'responseMessage' => 'success',
+            'responseCode' => 0,
+            'message' => $chatData,
+            'data' => $chatData,
+        ], 200);
     }
-}
+
+    private function failureResponse()
+    {
+        return response()->json([
+            'responseMessage' => 'failed',
+            'responseCode' => -1001,
+        ], 200);
+    }
 
 public function uploadChatImage(Request $request, $userId)
 {

@@ -21,7 +21,7 @@ class CommunityCommentResource extends JsonResource
     public function toArray($request)
     {
             $photo  = User::where('id', $this->user_id)->value('profile_pic');
-            $_photo  = $photo != null ? $photo : "avatar.JPG";
+            $_photo  = $photo != null ? $photo : "avatar.jpg";
             $photoStrings = json_decode($this->photos);
             $baseUrl =  env("APP_URL")."/users-community-images/" ;
 
@@ -50,7 +50,7 @@ class CommunityCommentResource extends JsonResource
         ])->count();
 
         $user = User::where('id', $this->user_id)->first();
-        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.JPG";
+        $user_photo = $user->profile_pic ? env("APP_URL")."/users-images/" . $user->profile_pic : env("APP_URL")."/users-images/" . "avatar.jpg";
 
 
                 // Replace $date with your actual date

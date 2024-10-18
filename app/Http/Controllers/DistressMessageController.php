@@ -239,7 +239,7 @@ public function deleteGuardianDistressMessage($id) {
             return response()->download(public_path("users-distress-audio/" . $audio), 'Distress Audio');
         } else {
             return "No Audio";
-            //  return response()->download(public_path("users-images/avatar.JPG"), 'User Image');
+            //  return response()->download(public_path("users-images/avatar.jpg"), 'User Image');
         }
     }
 
@@ -255,7 +255,7 @@ public function deleteGuardianDistressMessage($id) {
             return response()->download(public_path("users-distress-photos/" . $photo), 'Distress Photo');
         } else {
             return "No Photo";
-            //  return response()->download(public_path("users-images/avatar.JPG"), 'User Image');
+            //  return response()->download(public_path("users-images/avatar.jpg"), 'User Image');
         }
     }
 

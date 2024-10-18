@@ -43,13 +43,13 @@ class ChatListResource extends JsonResource
         if ($role === "user") {
             return Volunteer::where('user_id', $this->volunteer_id)->first([
                 'user_id as volunteer_id', 'role', 'status', 'email', 'phone', 'username',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/volunteer-images/', photo), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
             ]);
         } else {
             return User::where('id', $this->user_id)->first([
                 'id as _id',
                 'username as name',
-                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+                \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
             ]);
         }
     }
@@ -59,7 +59,7 @@ class ChatListResource extends JsonResource
         return User::where('id', $this->user_id)->first([
             'id as _id',
             'username as name',
-            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.JPG') as avatar"),
+            \DB::raw("COALESCE(CONCAT('" . env('APP_URL') . "/users-images/', profile_pic), '" . env('APP_URL') . "/users-images/avatar.jpg') as avatar"),
         ]);
     }
 
@@ -124,8 +124,8 @@ class ChatListResource extends JsonResource
         }
 
         try {
-            return Crypt::decrypt($chat->text);
-        } catch (DecryptException $e) {
+            return base64_decode($chat->text);
+        } catch (\Exception $e) {
             // Log the error if needed
             // \Log::error('Failed to decrypt chat text: ' . $e->getMessage());
             return '[Encrypted]'; // or return a placeholder text
