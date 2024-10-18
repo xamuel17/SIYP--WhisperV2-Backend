@@ -366,7 +366,7 @@ class VolunteerController extends Controller
 
     private function successResponse($newChat)
     {
-        $chat = Chat::where(['_id' => $newChat->_id, 'text' => $newChat->text])
+        $chat = Chat::where(['chat_id' => $newChat->chat_id, 'text' => $newChat->text])
         ->latest('created_at')
         ->first();
 
