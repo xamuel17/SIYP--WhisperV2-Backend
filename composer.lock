@@ -1,12 +1,10 @@
 {
-    "name": "laravel/laravel",
-    "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": [
-        "framework",
-        "laravel"
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
     ],
-    "content-hash": "c43fb356b22c2e1f525a3d395046071f",
+    "content-hash": "ef4cf8345ab18884062a4c9ab197ea26",
     "packages": [
         {
             "name": "asm89/stack-cors",

@@ -324,7 +324,11 @@ class VolunteerController extends Controller
     {
         $userId = auth()->id();
         $volunteerId = $request->volunteer_id;
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
         $chat = Chat::firstOrCreate(
             [
                 'user_id' => $userId,
@@ -336,9 +340,15 @@ class VolunteerController extends Controller
                 'text' => $this->createGreetingMessage($volunteerId),
             ]
         );
+<<<<<<< Updated upstream
 
         $photo = $request->has('photo') ? $this->uploadChatImage($request, $userId) : null;
 
+=======
+    
+        $photo = $request->has('photo') ? $this->uploadChatImage($request, $userId) : null;
+    
+>>>>>>> Stashed changes
         $newChat = Chat::create([
             'text' => base64_encode($request->text),
             'sent' => true,
@@ -346,6 +356,7 @@ class VolunteerController extends Controller
             'image' => $photo,
             $this->determineUserType($userId) => $userId,
         ]);
+<<<<<<< Updated upstream
 
         if ($newChat) {
             return $this->successResponse($newChat);
@@ -354,16 +365,31 @@ class VolunteerController extends Controller
         return $this->failureResponse();
     }
 
+=======
+    
+        if ($newChat) {
+            return $this->successResponse($newChat);
+        }
+    
+        return $this->failureResponse();
+    }
+    
+>>>>>>> Stashed changes
     private function createGreetingMessage($volunteerId)
     {
         $volunteer = Volunteer::where('user_id', $volunteerId)->value('username');
         return base64_encode("Greetings, {$volunteer}!");
     }
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
     private function determineUserType($userId)
     {
         return Volunteer::where('user_id', $userId)->exists() ? 'volunteer_id' : 'user_id';
     }
+<<<<<<< Updated upstream
 
     private function successResponse($newChat)
     {
@@ -381,6 +407,32 @@ class VolunteerController extends Controller
         ], 200);
     }
 
+=======
+    
+    private function successResponse($newChat)
+    {
+        $chatRecord = Chat::where([
+            'text' => $newChat->text,
+            'chat_id' => $newChat->chat_id,
+            'user_id' => auth()->id()
+        ])
+        ->latest('created_at')
+        ->first();
+    
+        if (!$chatRecord) {
+            return $this->failureResponse('Chat record not found');
+        }
+    
+        $chatData = new ChatResource($chatRecord);
+    
+        return response()->json([
+            'responseMessage' => 'success',
+            'responseCode' => 0,
+            'message' => $chatData
+        ], 200);
+    }
+    
+>>>>>>> Stashed changes
     private function failureResponse()
     {
         return response()->json([

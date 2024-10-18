@@ -22,7 +22,11 @@ class ChatListVolunteerResource extends JsonResource
     public function toArray($request)
     {
         $avatarUrl = env('APP_URL') . '/users-images/';
+<<<<<<< Updated upstream
         $defaultAvatar = $avatarUrl . 'avatar.jpg';
+=======
+        $defaultAvatar = $avatarUrl . 'avatar.JPG';
+>>>>>>> Stashed changes
 
         $user = User::select(
             'id as _id',
@@ -100,4 +104,8 @@ class ChatListVolunteerResource extends JsonResource
             return '[Encrypted message]';
         }
     }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
