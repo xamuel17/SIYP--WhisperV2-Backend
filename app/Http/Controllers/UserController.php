@@ -607,7 +607,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function updateUser(Request $request, $id)
+    public function updateUser(Request $request)
     {
         // Prepare the data for update
         $reqdata = [
@@ -623,7 +623,7 @@ class UserController extends Controller
             $response = [
                 'responseMessage' => 'success',
                 'responseCode' => 0, // Use 0 instead of 00
-                'data' => User::findOrFail($id), // Fetch updated user
+                'data' => User::findOrFail(auth()->user()->id), // Fetch updated user
             ];
         } else {
             $response = [
