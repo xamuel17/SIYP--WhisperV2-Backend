@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Mail\ActivationMail;
 use App\Models\CommunityMember;
+use App\Models\NotificationPreference;
 use App\Models\Notifications;
 use App\Models\User;
 use Carbon\Carbon;
@@ -110,6 +111,7 @@ class UserController extends Controller
                 $title = "Welcome to SIYP! ";
                 $content = "Hello " . $request->username . "! \n We are Happy to have you on board! \n       SIYP is a social media safe space created by Whisper to Humanity to house young Nigerian feminists, build an unbreakable bond and create a generation of young people excited about equality in humanity and willing to be humans.";
 
+                NotificationPreference::create(['user_id' =>$notId]);
                 try {
                     $this->sendNotification($notId, $title, $content, "8");
                 } catch (\Throwable $th) {
@@ -327,21 +329,21 @@ class UserController extends Controller
             case ('en'):
                 $lang = "English";
                 break;
-            case ('es'):
-                $lang = "Spanish";
-                break;
-            case ('sw'):
-                $lang = "Swahili";
-                break;
-            case ('dn'):
-                $lang = "Danish";
-                break;
-            case ('en'):
-                $lang = "English";
-                break;
-            case ('fr'):
-                $lang = "French";
-                break;
+            // case ('es'):
+            //     $lang = "Spanish";
+            //     break;
+            // case ('sw'):
+            //     $lang = "Swahili";
+            //     break;
+            // case ('dn'):
+            //     $lang = "Danish";
+            //     break;
+            // case ('en'):
+            //     $lang = "English";
+            //     break;
+            // case ('fr'):
+            //     $lang = "French";
+            //    break;
             default:
                 $lang = "";
         }
@@ -441,13 +443,6 @@ class UserController extends Controller
     {
 
         $username = $request->username;
-
-        //   $response['responseMessage'] = 'success';
-        //   $response['responseCode'] = 00;
-        //   $response['data'] = User::query()->where('username','LIKE', "%{$username}%")->get();
-
-        //   return response()->json($response, 200);
-
         $users = User::query()->where('username', 'LIKE', "%{$username}%")->get();
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
@@ -614,50 +609,32 @@ class UserController extends Controller
      */
     public function updateUser(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-        $rules = array(
-            'firstname' => 'required|min:4',
-            'lastname' => 'required|min:4',
-            'sex' => 'required',
-            'dob' => 'required',
-            'phone' => 'required|min:11',
-            'country' => 'required',
-        );
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) {
+        // Prepare the data for update
+        $reqdata = [
+            'firstname' => $request->fullname,
+            'dob' => $request->dob,
+        ];
 
-            $response['responseMessage'] = 'failed';
-            $response['responseCode'] = -1001;
-            $response['Data'] = $validator->errors();
-            return response()->json($response, 200);
+        // Update the user and fetch the updated user data
+        $userUpdated = User::where('id', auth()->user()->id)->update($reqdata);
+
+        // Prepare response
+        if ($userUpdated) {
+            $response = [
+                'responseMessage' => 'success',
+                'responseCode' => 0, // Use 0 instead of 00
+                'data' => User::findOrFail($id), // Fetch updated user
+            ];
         } else {
-
-            // $reqdata = $request->all();
-
-            $reqdata['firstname'] = $request->firstname;
-            $reqdata['lastname'] = $request->lastname;
-            $reqdata['sex'] = $request->sex;
-            $reqdata['dob'] = $request->dob;
-            $reqdata['phone'] = $request->phone;
-            $reqdata['country'] = $request->country;
-
-            $user = User::where('id', $id)->update($reqdata);
-            if ($user) {
-
-                $response['responseMessage'] = 'success';
-                $response['responseCode'] = 00;
-                $response['data'] = User::findOrFail($id);
-
-                return response()->json($response, 200);
-            } else {
-
-                $response['responseMessage'] = 'failed';
-                $response['responseCode'] = -1001;
-
-                return response()->json($response, 200);
-            }
+            $response = [
+                'responseMessage' => 'failed',
+                'responseCode' => -1001,
+            ];
         }
+
+        return response()->json($response, 200);
     }
+
 
 //#######################################USER
     /**
