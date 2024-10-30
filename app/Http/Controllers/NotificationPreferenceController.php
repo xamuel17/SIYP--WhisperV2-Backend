@@ -47,8 +47,6 @@ class NotificationPreferenceController extends Controller
             'theme'
         ]);
 
-        // Add user_id to the data array
-        $data['user_id'] = $request->user_id;
 
         // Find or create the notification preference for the authenticated user
         $preference = NotificationPreference::updateOrCreate(
