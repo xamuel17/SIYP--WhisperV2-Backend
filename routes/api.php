@@ -14,6 +14,7 @@ use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\OffenderController;
 use App\Http\Controllers\EmergencyController;
 use App\Http\Controllers\DistressMessageController;
+use App\Http\Controllers\NotificationPreferenceController;
 use App\Http\Controllers\RulesController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\VolunteerController;
@@ -151,8 +152,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/notifications/{id}/{postId}', [NotificationsController::class, 'readNotifications']);
     Route::get('/not/delete/{id}', [NotificationsController::class, 'deleteNotification']);
 
-    Route::get('/notification/preference', [NotificationPreference::class, 'fetchUserPreference']);
-    Route::post('/notification/preference-update', [NotificationPreference::class, 'updateUserPreference']);
+    Route::get('/notification/preference', [NotificationPreferenceController::class, 'fetchUserPreference']);
+    Route::post('/notification/preference-update', [NotificationPreferenceController::class, 'updateUserPreference']);
 
 
 
