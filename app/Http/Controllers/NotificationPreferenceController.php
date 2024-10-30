@@ -19,10 +19,12 @@ class NotificationPreferenceController extends Controller
             ['user_id' => auth()->user()->id]
         );
 
+        $userData = NotificationPreference::where('user_id', auth()->user()->id)->first();
+
         return response()->json([
             'responseMessage' => 'success',
-            'responseCode' => 0, // Use 0 instead of 00
-            'data' => $data,
+            'responseCode' => 00, // Use 0 instead of 00
+            'data' => $userData,
         ], 200);
     }
 
@@ -54,66 +56,13 @@ class NotificationPreferenceController extends Controller
             $data
         );
 
+        $userData = NotificationPreference::where('user_id', auth()->user()->id)->first();
+
         return response()->json([
             'responseMessage' => 'success',
             'responseCode' => 00,
+            'data' => $userData
         ], 200);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\NotificationPreference  $notificationPreference
-     * @return \Illuminate\Http\Response
-     */
-    public function show(NotificationPreference $notificationPreference)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\NotificationPreference  $notificationPreference
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(NotificationPreference $notificationPreference)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\NotificationPreference  $notificationPreference
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, NotificationPreference $notificationPreference)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\NotificationPreference  $notificationPreference
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(NotificationPreference $notificationPreference)
-    {
-        //
-    }
 }
