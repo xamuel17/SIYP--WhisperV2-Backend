@@ -14,7 +14,7 @@ class UpdateChatTableAddAppointmentId extends Migration
     public function up()
     {
         Schema::table('chats', function (Blueprint $table) {
-            $table->bigInteger('appointment_id');
+            $table->bigInteger('appointment_id')->nullable();
           //  $table->foreign('appointment_id')->references('id')->on('voluteer_appointments')->onDelete('cascade');
         });
     }
