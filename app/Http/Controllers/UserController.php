@@ -542,6 +542,11 @@ class UserController extends Controller
             }
 
             $user = User::where($con)->first();
+            if ($request->filled('player_id')) {
+                User::where('id', $user->id)->update([
+                    'player_id' => $request->player_id
+                ]);
+            }
             $token = $user->createToken('my-app-token')->plainTextToken;
             $response['responseMessage'] = 'success';
             $response['responseCode'] = 00;
@@ -562,6 +567,11 @@ class UserController extends Controller
         }
 
         $token = $user->createToken('my-app-token')->plainTextToken;
+        if ($request->filled('player_id')) {
+            User::where('id', $user->id)->update([
+                'player_id' => $request->player_id
+            ]);
+        }
 
         $response['responseMessage'] = 'success';
         $response['responseCode'] = 00;
@@ -610,10 +620,17 @@ class UserController extends Controller
     public function updateUser(Request $request)
     {
         // Prepare the data for update
+
+       if($request->filled(('player_id'))){
         $reqdata = [
-            'firstname' => $request->fullname,
-            'dob' => $request->dob,
+            'player_id' => $request->player_id
         ];
+       }else{
+            $reqdata = [
+                'firstname' => $request->fullname,
+                'dob' => $request->dob,
+            ];
+        }
 
         // Update the user and fetch the updated user data
         $userUpdated = User::where('id', auth()->user()->id)->update($reqdata);

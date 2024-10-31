@@ -4,10 +4,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Resources\NotificationResource;
 use App\Models\Notifications;
-use Illuminate\Notifications\Notification;
+use App\Models\User;
+use App\Notifications\PushNotification;
+use App\Services\OneSignalService;
+use Berkayk\OneSignal\OneSignalServiceProvider;
 
 class NotificationsController extends Controller
 {
+
+    protected $oneSignal;
+
+    public function __construct(OneSignalServiceProvider $oneSignal)
+    {
+        $this->oneSignal = $oneSignal;
+    }
+
     /**
      * Display a listing of the resource.
          * @param  int  $id
@@ -26,10 +37,6 @@ class NotificationsController extends Controller
 
 
     }
-
-
-
-
 
 
 
@@ -114,39 +121,6 @@ class NotificationsController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Notifications  $notifications
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Notifications $notifications)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Notifications  $notifications
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Notifications $notifications)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Notifications  $notifications
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Notifications $notifications)
-    {
-        //
-    }
 
   /**
      * Display a listing of the resource.
@@ -162,4 +136,105 @@ class NotificationsController extends Controller
         $response['responseCode'] = 00;
         return response()->json($response, 200);
     }
+
+
+
+    public function sendNotification(Request $request)
+    {
+        try {
+            $response = $this->oneSignal->sendNotificationToUsers(
+                [$request->player_id],
+                $request->title,
+                $request->message,
+                $request->additional_data ?? []
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function sendToAll(Request $request)
+    {
+        try {
+            $response = $this->oneSignal->sendNotificationToAll(
+                $request->title,
+                $request->message,
+                $request->additional_data ?? []
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+       // Using Laravel's notification system
+       public function sendUsingNotification(Request $request)
+       {
+           $user = User::where('id', $request->user_id)->first();
+           $user->notify(new PushNotification(
+            $request->title,
+            $request->message,
+               ['type' => 'personal']
+           ));
+       }
+
+       // Send based on filters
+       public function sendFiltered(Request $request)
+       {
+           $filters = [
+               [
+                   'field' => 'tag',
+                   'key' => 'level',
+                   'relation' => '>',
+                   'value' => '10'
+               ],
+               [
+                   'operator' => 'AND'
+               ],
+               [
+                   'field' => 'amount_spent',
+                   'relation' => '>',
+                   'value' => '100'
+               ]
+           ];
+
+           $response = $this->oneSignal->sendNotificationByFilter(
+               $filters,
+               $request->title,
+               $request->message,
+               ['type' => 'promo']
+           );
+
+           return response()->json($response);
+       }
+
+       // Schedule a notification
+       public function scheduleNotification(Request $request)
+       {
+           $playerIds = $request->playerIds;
+           $response = $this->oneSignal->scheduleNotification(
+               $playerIds,
+               $request->title,
+               $request->message,
+               $request->time,
+               ['type' => 'scheduled']
+           );
+
+           return response()->json($response);
+       }
 }
