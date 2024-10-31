@@ -151,13 +151,16 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/notifications/{id}', [NotificationsController::class, 'getNotification']);
     Route::get('/notifications/{id}/{postId}', [NotificationsController::class, 'readNotifications']);
     Route::get('/not/delete/{id}', [NotificationsController::class, 'deleteNotification']);
-
+    Route::get('/check/notifications/{id}', [NotificationsController::class, 'checkNotifications']);
     Route::get('/notification/preference', [NotificationPreferenceController::class, 'fetchUserPreference']);
     Route::post('/notification/preference-update', [NotificationPreferenceController::class, 'updateUserPreference']);
 
-
-
-    Route::get('/check/notifications/{id}', [NotificationsController::class, 'checkNotifications']);
+    Route::prefix('notifications')->group(function () {
+        Route::post('send-to-users', [NotificationsController::class, 'sendToUsers']);
+        Route::post('send-to-all', [NotificationsController::class, 'sendToAll']);
+        Route::post('send-filtered', [NotificationsController::class, 'sendFiltered']);
+        Route::post('schedule', [NotificationsController::class, 'scheduleNotification']);
+    });
 
 
     Route::post('/sos/number', [EmergencyController::class, 'addNumber']);

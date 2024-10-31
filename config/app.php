@@ -163,6 +163,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
       // Barryvdh\Cors\ServiceProvider::class,
 
+
         /*
          * Package Service Providers...
          */
@@ -177,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
+        App\Providers\OneSignalServiceProvider::class,
 
     ],
 
